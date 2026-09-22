@@ -31,8 +31,11 @@ def test_coverage_accuracy_endpoints():
     y = np.array([1, 1, 0, 1])
     cov, acc, n = coverage_accuracy(p, y, thr=1.0)
     assert cov == 0.0 and acc is None and n == 0
+    # only 0.99 clears 0.9 -> one selection, and that one is correct
     cov, acc, n = coverage_accuracy(p, y, thr=0.9)
-    assert cov == 0.25 and acc == 0.75 and n == 1
+    assert cov == 0.25 and acc == 1.0 and n == 1
+    cov, acc, n = coverage_accuracy(p, y, thr=0.5)
+    assert cov == 1.0 and acc == 0.75 and n == 4
 
 
 def test_coverage_curve_is_monotone_in_coverage():
@@ -44,7 +47,9 @@ def test_coverage_curve_is_monotone_in_coverage():
 
 
 def test_permutation_robustness_is_max_abs_gap():
-    assert permutation_robustness([0.1, 0.6, 0.9], [0.2, 0.55, 0.88]) == 0.02
+    # |0.1-0.2|=0.10, |0.6-0.55|=0.05, |0.9-0.88|=0.02  -> max is 0.10
+    assert permutation_robustness([0.1, 0.6, 0.9], [0.2, 0.55, 0.88]) == 0.1
+    assert permutation_robustness([0.5, 0.5], [0.5, 0.5]) == 0.0
 
 
 def test_selector_agreement_rate_counts_argmax_flips():
