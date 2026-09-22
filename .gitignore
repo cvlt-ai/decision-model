@@ -1,0 +1,14 @@
+data/raw/
+data/processed/
+data/holdout/*.parquet
+data/holdout/*.arrow
+checkpoints/
+logs/
+results/
+research/notes/probes/*.jsonl
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
+.venv-od/
+*.pyc
