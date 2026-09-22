@@ -4,7 +4,10 @@ data/holdout/*.parquet
 data/holdout/*.arrow
 checkpoints/
 logs/
-results/
+# scored result JSONs are the compact research record and get committed;
+# raw per-answer logs regenerate from the frozen holdout + pinned model, stay ignored
+results/*
+!results/*.json
 research/notes/probes/*.jsonl
 __pycache__/
 *.egg-info/
