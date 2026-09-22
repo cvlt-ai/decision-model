@@ -177,7 +177,8 @@ def _perm_probe(call, ex: EvalExample, k: int = 5) -> tuple[list[list[float]], l
 
 
 def run_eval(model: str, families: list[str], limit: int | None, permutations: int,
-             endpoint: str | None = None, ckpt: str | None = None) -> dict:
+             endpoint: str | None = None, ckpt: str | None = None,
+             raw_path: Path | None = None, fresh: bool = False) -> dict:
     if model == "laya":
         call = laya_backend()
     elif model == "endpoint":
@@ -188,6 +189,22 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
         raise SystemExit(f"backend '{model}' not wired yet (laya|endpoint for now)")
 
     data = load_holdout(families)
+
+    # incremental raw log: a crash must not burn hours of inference; on restart we
+    # skip uids already answered. One JSON object per line: {uid, answers, ms}.
+    if raw_path is None:
+        raw_path = RESULTS / f"raw_{model}.jsonl"
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    done: dict[str, dict] = {}
+    if raw_path.exists() and not fresh:
+        for ln in raw_path.read_text().splitlines():
+            try:
+                d = json.loads(ln)
+                done[d["uid"]] = d
+            except json.JSONDecodeError:
+                continue  # a torn last line from a crash; safe to drop
+    raw_f = raw_path.open("a")
+
     per_family, all_p, all_y, perm_stats = {}, [], [], []
     neg_pairs: dict[str, dict] = {}
     lat = []
@@ -198,9 +215,15 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
         n_ok = 0
         fam_p, fam_y, fam_lat = [], [], []
         for ex in rows:
-            t0 = time.perf_counter()
-            answers = call(ex.state, ex.questions)
-            dt = (time.perf_counter() - t0) * 1000
+            if ex.uid in done:
+                rec = done[ex.uid]
+                answers, dt = rec["answers"], rec["ms"]
+            else:
+                t0 = time.perf_counter()
+                answers = call(ex.state, ex.questions)
+                dt = (time.perf_counter() - t0) * 1000
+                raw_f.write(json.dumps({"uid": ex.uid, "answers": answers, "ms": dt}) + "\n")
+                raw_f.flush()
             fam_lat.append(dt)
             qid = next(iter(ex.questions))
             ok, p_top, p_brier = _grade_answer(answers[qid], ex.gold[qid])
@@ -266,6 +289,7 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
         "perm_flip_rate": statistics.mean([p["flip"] for p in perm_stats]) if perm_stats else None,
         "negation_mean_violation": statistics.mean(viol) if viol else None,
     }
+    raw_f.close()
     return {"model": model, "device_note": "see CLI", "families": per_family, "macro": macro}
 
 
@@ -279,6 +303,8 @@ def main():
     ap.add_argument("--endpoint", default=None)
     ap.add_argument("--ckpt", default=None)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--raw", default=None, help="incremental raw JSONL (resume source)")
+    ap.add_argument("--fresh", action="store_true", help="ignore/delete any raw resume log")
     args = ap.parse_args()
 
     fams = [f for f in args.families.split(",") if f]
@@ -286,7 +312,12 @@ def main():
         counts = build_holdout(args.limit, fams)
         print(json.dumps(counts, indent=1))
         return
-    res = run_eval(args.model, fams, args.limit, args.permutations, args.endpoint, args.ckpt)
+    if args.fresh and args.raw:
+        Path(args.raw).unlink(missing_ok=True)
+    res = run_eval(
+        args.model, fams, args.limit, args.permutations, args.endpoint, args.ckpt,
+        raw_path=Path(args.raw) if args.raw else None, fresh=args.fresh,
+    )
     RESULTS.mkdir(exist_ok=True)
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
