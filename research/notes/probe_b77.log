@@ -1,0 +1,10 @@
+mteb/banking77 license: mit tags: ['license:mit']
+Generating train split:   0%|          | 0/9993 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 9993/9993 [00:00<00:00, 1579621.61 examples/s]
+Generating test split:   0%|          | 0/3076 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 3076/3076 [00:00<00:00, 1833666.73 examples/s]
+  OK n= 3076 features= ['text', 'label', 'label_text']
+  row0: {'text': 'How do I locate my card?', 'label': '11', 'label_text': 'card_arrival'}
+legacy-datasets/banking77 license: ['cc-by-4.0'] tags: ['license:cc-by-4.0']
+Generating train split:   0%|          | 0/10003 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 10003/10003 [00:00<00:00, 2479207.17 examples/s]
+Generating test split:   0%|          | 0/3080 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 3080/3080 [00:00<00:00, 1744558.58 examples/s]
+  OK n= 3080 features= ['text', 'label']
+  row0: {'text': 'How do I locate my card?', 'label': '11'}

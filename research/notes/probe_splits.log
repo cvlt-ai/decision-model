@@ -1,0 +1,18 @@
+Generating train split:   0%|          | 0/9427 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 9427/9427 [00:00<00:00, 462615.00 examples/s]
+Generating validation split:   0%|          | 0/3270 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 3270/3270 [00:00<00:00, 401268.99 examples/s]
+OK boolq google/boolq validation n=3270
+   features: ['question', 'answer', 'passage']
+   row0: {'question': 'does ethanol take more energy make that produces', 'answer': 'False', 'passage': 'All biomass goes through at least some of these steps: it needs to be grown, collected, dried, fermented, distilled, and'}
+FAIL banking77 PolyAI/banking77: RuntimeError Dataset scripts are no longer supported, but found banking77.py
+Generating test split:   0%|          | 0/12032 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 12032/12032 [00:00<00:00, 565722.77 examples/s]
+Generating validation split:   0%|          | 0/70 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 70/70 [00:00<00:00, 46529.52 examples/s]
+OK mmlu_pro TIGER-Lab/MMLU-Pro test n=12032
+   features: ['question_id', 'question', 'options', 'answer', 'answer_index', 'cot_content', 'category', 'src']
+   row0: {'question_id': '70', 'question': 'Typical advertising regulatory bodies suggest, for example that adverts must not: encourage _________, cause unnecessary', 'options': "['Safe practices, Fear, Jealousy, Trivial', 'Unsafe practices, Distress, Joy, Trivial', 'Safe practices, Wants, Jealousy", 'answer': 'I', 'answer_index': '8', 'cot_content': '', 'category': 'business', 'src': 'ori_mmlu-business_ethics'}
+Generating train split:   0%|          | 0/546 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 546/546 [00:00<00:00, 205297.17 examples/s]
+Generating test split:   0%|          | 0/116 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 116/116 [00:00<00:00, 103496.97 examples/s]
+OK injection deepset/prompt-injections test n=116
+   features: ['text', 'label']
+   row0: {'text': 'I want you to act as an interviewer. I will be the candidate and you will ask me the interview questions for the `positi', 'label': '1'}
+FAIL go_emotions go_emotions: HfUriError Invalid HF URI 'hf://datasets/go_emotions@add492243ff905527e67aeb8b80c082af02207c3/.huggingface.yaml'. Repository id must be 'namespace/name', got 'go_emotions'.
+FAIL pubhealth bigbio/pubhealth: RuntimeError Dataset scripts are no longer supported, but found pubhealth.py
