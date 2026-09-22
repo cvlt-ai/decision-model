@@ -1,0 +1,456 @@
+{
+ "model": "convaiinnovations/laya (0.3.5)",
+ "device": "cpu",
+ "n_scored": 9,
+ "correct": 8,
+ "accuracy": 0.8889,
+ "probe_cases": [
+  "noul-die-odd",
+  "noul-coin-unobserved",
+  "noul-negation"
+ ],
+ "diagnostics": {
+  "negation_sum": {
+   "p_refund": 0.1273,
+   "p_not_refund": 0.2181,
+   "sum": 0.3454,
+   "should_be": 1.0,
+   "violation": 0.6546,
+   "vendor_documented_violation": 0.19
+  }
+ },
+ "latency_ms": {
+  "p50": 130.6,
+  "min": 122.5,
+  "max": 155.6
+ },
+ "permutation_max_shift": 0.0718,
+ "vendor_warning": "laya/agent.py:385 RuntimeWarning at load: 'this checkpoint ships temperatures outside [0.5, 5] which would distort confidence; clamping choice:11+=0.1006. Treat confidence from the affected buckets as uncalibrated.'",
+ "cases": [
+  {
+   "id": "route-billing",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "route": "billing"
+   },
+   "expect": {
+    "route": "billing"
+   },
+   "latency_ms": 155.5,
+   "prob_sums": {
+    "route": 1.0
+   },
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "route": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9526,
+       "technical": 0.0191,
+       "sales": 0.0283
+      },
+      "confidence": 0.7973,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 61,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "route-technical",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "route": "technical"
+   },
+   "expect": {
+    "route": "technical"
+   },
+   "latency_ms": 149.3,
+   "prob_sums": {
+    "route": 1.0
+   },
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "route": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.0483,
+       "technical": 0.9013,
+       "sales": 0.0504
+      },
+      "confidence": 0.6444,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 59,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "noul-urgency",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "u": 0.7382
+   },
+   "expect": {
+    "u": "yes"
+   },
+   "latency_ms": 135.6,
+   "prob_sums": {},
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "u": {
+      "type": "noul",
+      "noul": 0.7382,
+      "confidence": 0.7382,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 48,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "noul-not-urgency",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "u": 0.1393
+   },
+   "expect": {
+    "u": "no"
+   },
+   "latency_ms": 122.5,
+   "prob_sums": {},
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "u": {
+      "type": "noul",
+      "noul": 0.1393,
+      "confidence": 0.8607,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 44,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "noul-die-odd",
+   "probe": true,
+   "correct": null,
+   "got": {
+    "q": 0.1553
+   },
+   "expect": {
+    "q": "yes"
+   },
+   "latency_ms": 123.7,
+   "prob_sums": {},
+   "note": "base-rate / numeric reasoning; TypeSafe's own docs concede this class",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "q": {
+      "type": "noul",
+      "noul": 0.1553,
+      "confidence": 0.8447,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 46,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "noul-coin-unobserved",
+   "probe": true,
+   "correct": null,
+   "got": {
+    "q": 0.158
+   },
+   "expect": {
+    "q": "~0.50"
+   },
+   "latency_ms": 126.9,
+   "prob_sums": {},
+   "note": "the honest answer is 0.5; community reports show 0.11-0.68 on Jev/Laya",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "q": {
+      "type": "noul",
+      "noul": 0.158,
+      "confidence": 0.842,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 51,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "noul-negation",
+   "probe": true,
+   "correct": null,
+   "got": {
+    "refund": 0.1273
+   },
+   "expect": {
+    "refund": "no"
+   },
+   "latency_ms": 155.6,
+   "prob_sums": {},
+   "note": "P(refund) + P(not_refund) should be 1.0; vendor docs show 1.19",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "refund": {
+      "type": "noul",
+      "noul": 0.1273,
+      "confidence": 0.8727,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "not_refund": {
+      "type": "noul",
+      "noul": 0.2181,
+      "confidence": 0.7819,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 99,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "score-urgency",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "urgency": 1.7475
+   },
+   "expect": {
+    "urgency": ">=2.0"
+   },
+   "latency_ms": 129.7,
+   "prob_sums": {
+    "urgency": 1.0
+   },
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "urgency": {
+      "type": "score",
+      "score": 1.7475,
+      "legend": {
+       "0": "no deadline mentioned",
+       "1": "soft deadline within days",
+       "2": "hard same-day deadline with consequence"
+      },
+      "probabilities": {
+       "0": 0.0164,
+       "1": 0.2197,
+       "2": 0.7639
+      },
+      "confidence": 0.4484,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 56,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "score-calm",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "urgency": 0.8484
+   },
+   "expect": {
+    "urgency": "<=0.5"
+   },
+   "latency_ms": 131.4,
+   "prob_sums": {
+    "urgency": 1.0
+   },
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "urgency": {
+      "type": "score",
+      "score": 0.8484,
+      "legend": {
+       "0": "no deadline mentioned",
+       "1": "soft deadline within days",
+       "2": "hard same-day deadline with consequence"
+      },
+      "probabilities": {
+       "0": 0.2881,
+       "1": 0.5754,
+       "2": 0.1365
+      },
+      "confidence": 0.1367,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 53,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "noul-injection",
+   "probe": false,
+   "correct": false,
+   "got": {
+    "inj": 0.4033
+   },
+   "expect": {
+    "inj": "yes"
+   },
+   "latency_ms": 129.7,
+   "prob_sums": {},
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "inj": {
+      "type": "noul",
+      "noul": 0.4033,
+      "confidence": 0.5967,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 56,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "noul-no-injection",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "inj": 0.0828
+   },
+   "expect": {
+    "inj": "no"
+   },
+   "latency_ms": 125.3,
+   "prob_sums": {},
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "inj": {
+      "type": "noul",
+      "noul": 0.0828,
+      "confidence": 0.9172,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 49,
+     "output_tokens": 0
+    }
+   }
+  },
+  {
+   "id": "choice-fact",
+   "probe": false,
+   "correct": true,
+   "got": {
+    "metal": "gold"
+   },
+   "expect": {
+    "metal": "gold"
+   },
+   "latency_ms": 138.7,
+   "prob_sums": {
+    "metal": 0.9999
+   },
+   "note": "",
+   "raw": {
+    "model": "laya-rl-agent",
+    "answers": {
+     "metal": {
+      "type": "choice",
+      "choice": "gold",
+      "probabilities": {
+       "gold": 0.9787,
+       "aluminum": 0.0125,
+       "sodium": 0.0087
+      },
+      "confidence": 0.8932,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "usage": {
+     "input_tokens": 67,
+     "output_tokens": 0
+    }
+   }
+  }
+ ]
+}
