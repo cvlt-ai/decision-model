@@ -72,7 +72,7 @@ def build_holdout(limit: int | None = None, families: list[str] | None = None) -
         manifest["families"][fam] = {
             "n": len(rows),
             "sha256": h,
-            "adapters": str(fn),
+            "adapter": f"{fn.__module__}:{fn.__qualname__}",
         }
         counts[fam] = len(rows)
     (HOLDOUT / "MANIFEST.json").write_text(json.dumps(manifest, indent=1))
@@ -129,14 +129,20 @@ def _grade_answer(ans: dict, gold: Gold) -> tuple[bool, float, float]:
         p = float(ans["noul"])
         if kind == "prob":
             correct = abs(p - float(gold.value)) <= 0.15
-            return correct, p, p  # calibration probe; p is its own target
+            # keep these IN calibration: Laya's 0.158 coin answer becomes a
+            # 0.842-confidence wrong top-label, which ECE must punish
+            top_p = max(p, 1.0 - p)
+            return correct, top_p, top_p
         correct = (gold.value == "true") == (p >= 0.5)
         pred = p if p >= 0.5 else 1 - p  # top-label prob
         return correct, pred, p if gold.value == "true" else 1 - p
     if ans["type"] == "choice":
         probs = ans["probabilities"]
         correct = ans["choice"] == str(gold.value)
-        return correct, float(probs[str(gold.value)]), float(probs[str(gold.value)])
+        # calibration column = top-label CONFIDENCE (what ECE/Brier are defined on),
+        # not P(gold): P(gold) collapses discrimination into the calibration metric
+        top_p = max(float(v) for v in probs.values())
+        return correct, top_p, top_p
     # score: nearest-level semantics, never interpolation
     probs = {int(k): v for k, v in ans["probabilities"].items()}
     top = max(probs, key=lambda k: probs[k])
@@ -200,7 +206,7 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
             ok, p_top, p_brier = _grade_answer(answers[qid], ex.gold[qid])
             n_ok += int(ok)
             # base-rate prob items are calibration probes, not scored accuracy
-            if ex.gold[qid]["kind"] == "prob" and ex.meta.get("subkind") != "parity":
+            if ex.gold[qid].kind == "prob" and ex.meta.get("subkind") != "parity":
                 pass
             else:
                 fam_p.append(p_top)
