@@ -21,6 +21,7 @@ def all_adapters() -> dict:
         mmlu_pro,
         negation,
         pubhealth,
+        severity,
     )
 
     return REGISTRY

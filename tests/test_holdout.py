@@ -9,7 +9,7 @@ from eval.datasets.base import EvalExample
 all_adapters()
 from eval import datasets as dsmod  # noqa: E402
 
-FAMS = ["boolq", "banking77", "mmlu_pro", "injection", "go_emotions", "pubhealth", "negation", "baserate"]
+FAMS = ["boolq", "banking77", "mmlu_pro", "injection", "go_emotions", "pubhealth", "severity", "negation", "baserate"]
 
 
 @pytest.fixture(scope="module")

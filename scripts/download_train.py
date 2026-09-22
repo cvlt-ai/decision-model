@@ -28,6 +28,7 @@ TRAIN_JOBS = [
     # validation (not train) - repo has validation/test/reviewed; decontamination
     # against the frozen test holdout is mandatory before this may train on it.
     ("pubhealth_val", "Joshua-Harris/PubHealthBench", None, "validation"),
+    ("severity", "msc-smart-contract-auditing/vulnerability-severity-classification", None, "train"),
 ]
 
 

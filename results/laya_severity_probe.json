@@ -1,0 +1,44 @@
+{
+ "model": "laya",
+ "device_note": "see CLI",
+ "families": {
+  "severity": {
+   "n": 12,
+   "accuracy": 0.25,
+   "ece": 0.33580833333333326,
+   "brier": 0.19210808916666666,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.08333333333333333,
+     "accuracy": 1.0
+    },
+    "0.7": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.8": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.9": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.95": {
+     "coverage": 0.0,
+     "accuracy": null
+    }
+   },
+   "p50_ms": 219.37211498152465
+  }
+ },
+ "macro": {
+  "accuracy": 0.25,
+  "ece": 0.33580833333333326,
+  "brier": 0.19210808916666666,
+  "p50_ms": 219.37211498152465,
+  "perm_mean_max_shift": null,
+  "perm_flip_rate": null,
+  "negation_mean_violation": null
+ }
+}

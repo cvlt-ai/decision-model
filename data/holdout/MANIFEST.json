@@ -1,0 +1,50 @@
+{
+ "created": "2026-09-22T16:51:53-0400",
+ "families": {
+  "boolq": {
+   "n": 3270,
+   "sha256": "841735a98d277a27c3e85b3caeaf7ed7a4f7e7232625404d101f41b97dee9c35",
+   "adapter": "eval.datasets.boolq:boolq"
+  },
+  "banking77": {
+   "n": 3076,
+   "sha256": "6bdc58fb476ee8d70662e87b8eae2d2943341688040cb56b923adddda3b8baab",
+   "adapter": "eval.datasets.banking77:banking77"
+  },
+  "mmlu_pro": {
+   "n": 12032,
+   "sha256": "18f71b141db4e4ee04c11138819780bb5d53dcdbda65e3de4db93aee250339f5",
+   "adapter": "eval.datasets.mmlu_pro:mmlu_pro"
+  },
+  "injection": {
+   "n": 126,
+   "sha256": "65715c2492285875b15e6804fc7ca01e97616908aca7e2946337aa2c417b17ff",
+   "adapter": "eval.datasets.injection:injection"
+  },
+  "go_emotions": {
+   "n": 5427,
+   "sha256": "9c78ae9e26731d96e7c6a95403d861c33f63ae7dabea0749f0561289df814f84",
+   "adapter": "eval.datasets.go_emotions:go_emotions"
+  },
+  "pubhealth": {
+   "n": 7929,
+   "sha256": "d3c54ea1350f5996c71a1795fa1e4bc8175d8c6db685e374ba33ad7c3f503909",
+   "adapter": "eval.datasets.pubhealth:pubhealth"
+  },
+  "severity": {
+   "n": 437,
+   "sha256": "3f96e1a86f1142e84cb389d1933e2c1ec71a469fdc03e0a7365f972b42e67df9",
+   "adapter": "eval.datasets.severity:severity"
+  },
+  "negation": {
+   "n": 3270,
+   "sha256": "7d8c53b0c44101ab9327e87473a18c09db244cea82c1bd8596ace2e0ad009090",
+   "adapter": "eval.datasets.negation:negation"
+  },
+  "baserate": {
+   "n": 27,
+   "sha256": "a70882a05e346da256d7f82c349be4b592d52b7a9b9873879c30f18d921095e7",
+   "adapter": "eval.datasets.baserate:baserate"
+  }
+ }
+}

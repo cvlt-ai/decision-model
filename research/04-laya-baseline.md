@@ -1,7 +1,10 @@
 # Baseline: Laya 0.3.5 on the frozen suite (300 rows/family, CPU)
 
 Run 2026-09-22, `results/laya_frozen_300.json`, raw answers `results/raw_laya.jsonl`
-(resumable; scoring is re-computable from raw without re-running inference).
+(resumable; scoring is re-computable from raw without re-running inference — the
+9-family re-score reproduced every 8-family number exactly from the resume log).
+Suite v2 = 9 families / 35,594 rows (severity added so all three primitives —
+choice, noul, score — are covered; the first baseline had no score family at all).
 Machine: CPU only (`CUDA_VISIBLE_DEVICES=""`, OMP 16 threads) — GPUs held by llama-server.
 Grading semantics fixed BEFORE reading results (nearest-level ±0.5 for score, argmax for
 choice/noul, |p−target|≤0.15 for base-rate prob items, paired |P(x)+P(¬x)−1| for negation).
@@ -10,11 +13,11 @@ choice/noul, |p−target|≤0.15 for base-rate prob items, paired |P(x)+P(¬x)�
 
 | metric | value | our gate for M1/M2 |
 |---|---|---|
-| accuracy (8-family macro) | **0.426** | ≥ 0.55 first release |
-| ECE (15-bin) | **0.322** | ≤ 0.03 after recalibration (paper B: recalibration cuts 3.3×) |
-| Brier | 0.350 | — |
+| accuracy (9-family macro) | **0.410** | ≥ 0.55 first release |
+| ECE (15-bin) | **0.303** | ≤ 0.03 after recalibration (paper B: recalibration cuts 3.3×) |
+| Brier | 0.336 | — |
 | negation violation mean | **0.710** | ≤ 0.05 (hard architectural constraint: same-head negation) |
-| p50 latency (CPU) | 202 ms | ≤ 50 ms on GPU (Jev hosted: 70–500 ms) |
+| p50 latency (CPU) | 199 ms | ≤ 50 ms on GPU (Jev hosted: 70–500 ms) |
 | permutation shift | not measured (needs `--permutations 5`) | ≤ 0.02 |
 
 ## Per family
@@ -27,6 +30,7 @@ choice/noul, |p−target|≤0.15 for base-rate prob items, paired |P(x)+P(¬x)�
 | injection (noul) | 0.730 | 0.167 | plain 83/116 = 0.72; homoglyph variants 9/10 (small n) — encoding robustness is NOT its weakness, plain misses are |
 | go_emotions (28-way) | 0.437 | 0.448 | reasonable-ish accuracy, terrible calibration (ECE ≈ accuracy/2) |
 | pubhealth (MCQ) | 0.353 | 0.099 | low acc but well-calibrated low confidence — it knows it doesn't know. Contrast banking77 |
+| severity (score, 4 levels) | 0.277 | 0.178 | ≈ chance (25%). First-ever score-primitive run through the runner; Laya answers a Solidity severity ladder with a flat prior (e.g. {0:.09 1:.25 2:.46 3:.19}, confidence 0.10) — honest flatness, but no signal. Vendor's own urgency example scored 1.75 on a different scale, so score transfer across domains is weak everywhere |
 | negation (noul, flipped boolq) | **0.277** | 0.593 | vs 0.740 affirmative: it does not process the NOT in the question |
 | baserate (27 self-authored) | 0.370 | 0.372 | parity 9/18 = coin-flip guessing; coin 1/6; card **0/3** — every unobserved-event probability confidently wrong |
 

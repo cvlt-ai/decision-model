@@ -1,0 +1,11 @@
+{
+ "boolq": 3270,
+ "banking77": 3076,
+ "mmlu_pro": 12032,
+ "injection": 126,
+ "go_emotions": 5427,
+ "pubhealth": 7929,
+ "severity": 437,
+ "negation": 3270,
+ "baserate": 27
+}

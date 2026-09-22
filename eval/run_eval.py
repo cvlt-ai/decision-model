@@ -41,6 +41,7 @@ FAMILIES = [
     "injection",
     "go_emotions",
     "pubhealth",
+    "severity",
     "negation",
     "baserate",
 ]
@@ -83,10 +84,15 @@ def load_holdout(families: list[str] | None = None) -> dict[str, list[EvalExampl
     import pyarrow.parquet as pq
 
     out = {}
-    for fam in families or FAMILIES:
+    want = families or FAMILIES
+    for fam in want:
         p = HOLDOUT / f"{fam}.parquet"
         if p.exists():
             out[fam] = [EvalExample.from_dict(d) for d in pq.read_table(p).to_pylist()]
+        else:
+            raise FileNotFoundError(
+                f"holdout family '{fam}' missing at {p}; run: python -m eval.run_eval --build"
+            )
     return out
 
 
@@ -281,10 +287,14 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
     viol = [abs(v["neg"] + v["pos"] - 1.0) for v in neg_pairs.values() if "neg" in v and "pos" in v]
 
     macro = {
-        "accuracy": statistics.mean([f["accuracy"] for f in per_family.values() if f["accuracy"] is not None]),
-        "ece": ece(all_p, all_y),
-        "brier": brier(all_p, all_y),
-        "p50_ms": statistics.median(lat),
+        "accuracy": (
+            statistics.mean([f["accuracy"] for f in per_family.values() if f["accuracy"] is not None])
+            if any(f["accuracy"] is not None for f in per_family.values())
+            else None
+        ),
+        "ece": ece(all_p, all_y) if all_p else None,
+        "brier": brier(all_p, all_y) if all_p else None,
+        "p50_ms": statistics.median(lat) if lat else None,
         "perm_mean_max_shift": statistics.mean([p["max_shift"] for p in perm_stats]) if perm_stats else None,
         "perm_flip_rate": statistics.mean([p["flip"] for p in perm_stats]) if perm_stats else None,
         "negation_mean_violation": statistics.mean(viol) if viol else None,
