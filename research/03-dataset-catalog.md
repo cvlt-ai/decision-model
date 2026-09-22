@@ -52,16 +52,24 @@ rare-class coverage because of the resolution floor.
 
 ## Eval-suite datasets (Phase 2) — verified live 2026-09-22
 
-| HF id | license | gated | split / N | primitive | role |
+| HF id | license | gated | split / N (built) | primitive | role |
 |---|---|---|---|---|---|
-| `google/boolq` | cc-by-sa-3.0 | no | validation / 500 | noul | reading-comp yes/no |
-| `PolyAI/banking77` | cc-by-4.0 | no | test / 500 | choice (77) | intent routing |
-| `TIGER-Lab/MMLU-Pro` | **mit** | no | test / 400 | choice (≤10) | knowledge/reasoning |
-| `deepset/prompt-injections` | apache-2.0 | no | test / 300 | noul | safety gate |
-| `go_emotions` | apache-2.0 | no | test / 500 | choice (28) | fine-grained affect |
-| `bigbio/pubhealth` | **mit** | no | test / 300 | noul | claim support |
+| `google/boolq` | cc-by-sa-3.0 | no | validation / **3,270** | noul | reading-comp yes/no |
+| `mteb/banking77` | **mit** | no | test / **3,076** | choice (77) | intent routing |
+| `TIGER-Lab/MMLU-Pro` | **mit** | no | test / **12,032** | choice (≤10) | knowledge/reasoning |
+| `deepset/prompt-injections` | apache-2.0 | no | test / **126** (116 + 10 homoglyph variants) | noul | safety gate |
+| `google-research-datasets/go_emotions` | apache-2.0 | no | test / **5,427** | choice (28) | fine-grained affect |
+| `Joshua-Harris/PubHealthBench` | **cc-by-4.0** | no | test / **7,929** | choice (≤10) | claim support |
 
-(`pubhealth` corrected → `bigbio/pubhealth`; original id 404s.) Plus two
+Build corrections found while implementing the adapters (2026-09-22):
+- `PolyAI/banking77` and `bigbio/pubhealth` both **ship loading scripts, which
+  datasets 4.x refuses to run**. Working mirrors: `mteb/banking77` (parquet, MIT)
+  and `Joshua-Harris/PubHealthBench` (parquet, CC-BY-4.0). PubHealthBench is also
+  the better pick on content — full MCQ rather than binary claim-support.
+- `go_emotions` requires the full `google-research-datasets/` namespace id.
+- Frozen suite total: **35,157 rows** across 8 families + `MANIFEST.json` sha256s.
+
+Plus two
 **self-authored probe families** needing no downloads: `baserate` (die/coin/card
 questions with programmatically verifiable gold, incl. true-base-rate items whose
 honest answer is 0.5) and `negation` (each boolq item re-asked negated → measures
@@ -73,18 +81,19 @@ the P(x)+P(¬x)=1 invariant both Jev and Laya violate).
 |---|---|---|---|---|
 | `tasksource/tasksource-instruct-v0` | **apache-2.0** | no | ✓ | PRIMARY breadth (~485 discriminative tasks; NLI-heavy) |
 | `BAAI/Infinity-Instruct` | cc-by-sa-4.0 | **gated=auto** | ⚠ needs click-through; SA license | backup breadth |
-| `tasksource/infinite-instruct` | — | — | ✗ 404 | replaced by TSI |
-| `ai2_arc` | cc-by-sa-4.0 | no | ✓ | reasoning choice |
-| `Rowan/hellaswag` | (none stated) | no | ⚠ common-research use; flag | reasoning choice |
-| `super_glue` / `aps/super_glue` | other | no | ⚠ check per-subtask | NLI |
+| ~~`tasksource/infinite-instruct`~~ | — | — | ✗ 404 (confirmed gone, not a probe error) | replaced by TSI |
+| `nyu-mll/multi_nli` | cc-by-3.0 / cc-by-sa / mit / other | no | ✓ (use the mit-tagged subset) | NLI for noul |
+| `stanfordnlp/snli` | cc-by-sa-4.0 | no | ⚠ SA license → research-only line | NLI for noul |
+| `allenai/wildguardmix` | odc-by | **gated=auto** | ⚠ click-through; attribution | injection/safety train |
+| `openai/gsm8k` | **mit** | no | ✓ | numeric/base-rate-adjacent reasoning |
+| `allenai/ai2_arc` | cc-by-sa-4.0 | no | ⚠ SA → research line | reasoning choice |
+| `rowan/hellaswag` | (none stated) | no | ⚠ flag | reasoning choice |
 | `anli` | **cc-by-nc-4.0** | no | ✗ non-commercial | excluded |
 | `clinc_oos` | cc-by-3.0 | no | ✓ | routing |
 | `amazon_polarity` | apache-2.0 | no | ✓ | binary/score |
 | `SetFit/sst5` | (none stated) | no | ⚠ flag | ordinal score |
-| `social_i_qa` | (none stated) | no | ⚠ flag | commonsense |
-| `piqa`, `openbookqa` | unknown | no | ⚠ flag | commonsense |
+| `social_i_qa`, `piqa`, `openbookqa` | unknown | no | ⚠ flag | commonsense |
 | `facebook/xnli` | (none stated) | no | ⚠ flag | NLI multilingual (later) |
-| `Muennighoff/xnli` | — | — | ✗ 404 | use facebook/xnli |
 
 Policy: **✗ excluded; ⚠ quarantined** into a separately-named research checkpoint,
 never in a permissively-licensed release. ✓ = safe for the Apache-2.0 release line.
