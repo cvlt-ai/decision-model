@@ -103,3 +103,15 @@ The breadth backbone is TSI (Apache-2.0) — cleaner than the plan's original dr
 - No hosted-Jev API key → all Jev numbers remain "vendor-published".
 - No public Jev-style leaderboard exists yet (jev-scout says as much) — our suite
   being published and frozen is the contribution either way.
+
+## TSI inventory (streamed 2026-09-22, `data/raw/tsi_task_counts.json`)
+5,314,383 rows / 510 tasks. Largest families: bigbench (100 tasks, 286K), glue
+(135K), silicone, recast, hh-rlhf, tweet_eval, ethics, robust_nli, defeasible-nli,
+nli_fever, dialogue_nli — i.e. exactly the discriminative/NLI breadth the noul
+primitive needs. Tasks capped ~30K each.
+
+**License trap found:** the repo tag says apache-2.0 but TSI *includes anli/a1–a3*
+(77K rows) whose upstream is cc-by-nc-4.0. The permissive-release mixture must
+exclude every task whose upstream is NC/SA — filter list lives with the mixture
+builder, seeded from: `anli/*`, and a per-task provenance pass before release.
+Quarantine class (research-only): anli/*, multi_nli, snli, ai2_arc, hellaswag.
