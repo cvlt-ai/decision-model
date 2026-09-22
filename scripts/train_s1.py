@@ -24,13 +24,20 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 import time
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+# `python scripts/train_s1.py` puts scripts/ on sys.path, not the repo root, so
+# `import eval...` (and s1 when not pip-installed) would fail. Self-bootstrap:
+# works from any cwd, with or without PYTHONPATH, venv-agnostic.
+for _p in (str(ROOT), str(ROOT / "src")):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 import torch
 from torch.utils.data import Dataset
-
-ROOT = Path(__file__).resolve().parents[1]
 MIXTURE = ROOT / "data" / "processed" / "mixture_v1.jsonl"
 HOLDOUT = ROOT / "data" / "holdout"
 

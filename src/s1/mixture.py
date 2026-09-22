@@ -17,11 +17,15 @@ Reads pinned local copies (data/raw), never the network; never touches data/hold
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 from datasets import load_from_disk
 
 ROOT = Path(__file__).resolve().parents[2]
+for _p in (str(ROOT), str(ROOT / "src")):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 RAW = ROOT / "data" / "raw"
 
 # same constants the eval adapters use (importing, not retyping, is the point)
