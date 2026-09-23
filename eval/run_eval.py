@@ -125,6 +125,13 @@ def endpoint_backend(url: str):
     return call
 
 
+def readout_backend(ckpt: str, base: str, device: str, temperature: float,
+                    max_len: int, key_batch: int):
+    from . import readout
+
+    return readout.build(ckpt, base, device, temperature, max_len, key_batch=key_batch)
+
+
 # ------------------------------------------------------------------ scoring
 
 
@@ -184,15 +191,21 @@ def _perm_probe(call, ex: EvalExample, k: int = 5) -> tuple[list[list[float]], l
 
 def run_eval(model: str, families: list[str], limit: int | None, permutations: int,
              endpoint: str | None = None, ckpt: str | None = None,
-             raw_path: Path | None = None, fresh: bool = False) -> dict:
+             raw_path: Path | None = None, fresh: bool = False,
+             base: str = "Qwen/Qwen3.5-4B", device: str = "cuda:1",
+             temperature: float = 1.0, max_len: int = 1024, key_batch: int = 16) -> dict:
     if model == "laya":
         call = laya_backend()
     elif model == "endpoint":
         if not endpoint:
             raise SystemExit("--model endpoint requires --endpoint URL")
         call = endpoint_backend(endpoint)
+    elif model == "readout":
+        if not ckpt:
+            raise SystemExit("--model readout requires --ckpt <path to LoRA adapter>")
+        call = readout_backend(ckpt, base, device, temperature, max_len, key_batch)
     else:
-        raise SystemExit(f"backend '{model}' not wired yet (laya|endpoint for now)")
+        raise SystemExit(f"backend '{model}' not wired yet (laya|endpoint|readout)")
 
     data = load_holdout(families)
 
@@ -312,6 +325,12 @@ def main():
     ap.add_argument("--permutations", type=int, default=1)
     ap.add_argument("--endpoint", default=None)
     ap.add_argument("--ckpt", default=None)
+    ap.add_argument("--base", default="Qwen/Qwen3.5-4B", help="base model for readout backend")
+    ap.add_argument("--device", default="cuda:1", help="cuda:0|cuda:1|...|cpu (readout)")
+    ap.add_argument("--temperature", type=float, default=1.0, help="readout temperature (calibration phase later)")
+    ap.add_argument("--max-len", type=int, default=1024)
+    ap.add_argument("--key-batch", type=int, default=16,
+                    help="multi-token option keys scored in chunks of this size (OOM guard)")
     ap.add_argument("--out", default=None)
     ap.add_argument("--raw", default=None, help="incremental raw JSONL (resume source)")
     ap.add_argument("--fresh", action="store_true", help="ignore/delete any raw resume log")
@@ -327,6 +346,8 @@ def main():
     res = run_eval(
         args.model, fams, args.limit, args.permutations, args.endpoint, args.ckpt,
         raw_path=Path(args.raw) if args.raw else None, fresh=args.fresh,
+        base=args.base, device=args.device, temperature=args.temperature,
+        max_len=args.max_len, key_batch=args.key_batch,
     )
     RESULTS.mkdir(exist_ok=True)
     if args.out:
