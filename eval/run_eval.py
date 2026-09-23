@@ -224,7 +224,8 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
                 continue  # a torn last line from a crash; safe to drop
     raw_f = raw_path.open("a")
 
-    per_family, all_p, all_y, perm_stats = {}, [], [], []
+    per_family, all_p, all_y = {}, [], []
+    perm_stats: dict[str, list[dict]] = {}  # family -> per-example {max_shift, flip}
     neg_pairs: dict[str, dict] = {}
     lat = []
 
@@ -273,7 +274,7 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
                     # (argmax, aligned by key) differs from the base order
                     flips = [int(np.argmax(np.asarray(r, dtype=float)) != base_winner)
                              for r in runs[1:]]
-                    perm_stats.append(
+                    perm_stats.setdefault(fam, []).append(
                         {
                             "max_shift": float(max(shifts)),
                             "flip": float(sum(flips)) / len(flips),
@@ -297,10 +298,15 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
             },
             "p50_ms": statistics.median(fam_lat) if fam_lat else None,
         }
+        fp = perm_stats.get(fam)
+        if fp:
+            per_family[fam]["perm_mean_max_shift"] = statistics.mean([p["max_shift"] for p in fp])
+            per_family[fam]["perm_flip_rate"] = statistics.mean([p["flip"] for p in fp])
 
     # negation violation across paired boolq items
     viol = [abs(v["neg"] + v["pos"] - 1.0) for v in neg_pairs.values() if "neg" in v and "pos" in v]
 
+    _all_perm = [p for lst in perm_stats.values() for p in lst]
     macro = {
         "accuracy": (
             statistics.mean([f["accuracy"] for f in per_family.values() if f["accuracy"] is not None])
@@ -310,8 +316,8 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
         "ece": ece(all_p, all_y) if all_p else None,
         "brier": brier(all_p, all_y) if all_p else None,
         "p50_ms": statistics.median(lat) if lat else None,
-        "perm_mean_max_shift": statistics.mean([p["max_shift"] for p in perm_stats]) if perm_stats else None,
-        "perm_flip_rate": statistics.mean([p["flip"] for p in perm_stats]) if perm_stats else None,
+        "perm_mean_max_shift": statistics.mean([p["max_shift"] for p in _all_perm]) if _all_perm else None,
+        "perm_flip_rate": statistics.mean([p["flip"] for p in _all_perm]) if _all_perm else None,
         "negation_mean_violation": statistics.mean(viol) if viol else None,
     }
     raw_f.close()
