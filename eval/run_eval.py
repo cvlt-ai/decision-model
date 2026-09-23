@@ -23,7 +23,7 @@ import statistics
 import time
 from pathlib import Path
 
-from s1.metrics import argmax_flip_rate, brier, coverage_accuracy, ece, permutation_robustness
+from s1.metrics import brier, coverage_accuracy, ece, permutation_robustness
 from s1.schema import build_answer, confidence_from_probs
 from s1.schema import parse_request
 
@@ -266,15 +266,17 @@ def run_eval(model: str, families: list[str], limit: int | None, permutations: i
                 if len(runs) >= 2:
                     import numpy as np
 
-                    shifts = [permutation_robustness(runs[0], r) for r in runs[1:]]
+                    base_probs = np.asarray(runs[0], dtype=float)
+                    base_winner = int(np.argmax(base_probs))
+                    shifts = [float(permutation_robustness(runs[0], r)) for r in runs[1:]]
+                    # per-example flip: fraction of permutations whose winning option
+                    # (argmax, aligned by key) differs from the base order
+                    flips = [int(np.argmax(np.asarray(r, dtype=float)) != base_winner)
+                             for r in runs[1:]]
                     perm_stats.append(
                         {
                             "max_shift": float(max(shifts)),
-                            "flip": float(
-                                argmax_flip_rate(np.array([runs[0]]), np.array(runs[1:]))
-                            )
-                            if len(runs) > 1
-                            else 0.0,
+                            "flip": float(sum(flips)) / len(flips),
                         }
                     )
         lat += fam_lat
