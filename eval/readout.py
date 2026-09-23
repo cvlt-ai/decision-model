@@ -38,15 +38,11 @@ for _p in (str(ROOT), str(ROOT / "src")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+# single source of truth for prompt shape: train (s1.mixture) and readout must
+# render identically or eval gains are meaningless. import, don't retype.
+from s1.mixture import render as _mixture_render
 
-def render_prompt(state, instructions: str, options: list[tuple[str, str]]) -> str:
-    """Mirror of s1/mixture.render — the readout must see what the model trained on."""
-    st = state if isinstance(state, str) else json.dumps(state, ensure_ascii=False)
-    lines = [f"State:\n{st}", "", f"Question: {instructions}", "", "Options:"]
-    for i, (k, desc) in enumerate(options, 1):
-        lines.append(f"[{i}] {k}: {desc}")
-    lines += ["", "Answer:"]
-    return "\n".join(lines)
+render_prompt = _mixture_render
 
 
 class LogitReadout:

@@ -42,13 +42,27 @@ SA = {"cc-by-sa-3.0", "cc-by-sa-4.0"}
 
 
 def render(state, instructions, options: list[tuple[str, str]]) -> str:
-    """Shared prompt shape for all primitives. options = [(key, desc), ...]"""
+    """Shared prompt shape for all primitives. options = [(key, desc), ...]
+
+    A description that is just the key reformatted (underscores<->spaces, e.g.
+    banking77 `why_verify_identity` -> `why verify identity`) adds no
+    information, so it is dropped to `[i] key`. This keeps 77-option banking77
+    prompts ~520 tokens instead of ~1037, so the STATE survives the 1024 budget.
+    """
     st = state if isinstance(state, str) else json.dumps(state, ensure_ascii=False)
     lines = [f"State:\n{st}", "", f"Question: {instructions}", "", "Options:"]
     for i, (k, desc) in enumerate(options, 1):
-        lines.append(f"[{i}] {k}: {desc}")
+        lines.append(f"[{i}] {_option_label(k, desc)}")
     lines += ["", "Answer:"]
     return "\n".join(lines)
+
+
+def _option_label(key: str, desc: str) -> str:
+    k = str(key).strip()
+    d = str(desc).strip()
+    if d and d.replace(" ", "_").lower() != k.replace(" ", "_").lower():
+        return f"{k}: {d}"
+    return k
 
 
 def _negate_q(instructions: str) -> str:
