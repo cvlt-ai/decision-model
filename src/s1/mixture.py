@@ -16,7 +16,9 @@ Reads pinned local copies (data/raw), never the network; never touches data/hold
 
 from __future__ import annotations
 
+import hashlib
 import json
+import random
 import sys
 from pathlib import Path
 
@@ -69,6 +71,20 @@ def _negate_q(instructions: str) -> str:
     return f"Is it NOT the case that the following is true? {instructions}"
 
 
+def _shuffled_options(uid: str, options: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """Deterministic permutation of an option list, seeded by uid.
+
+    Same uid -> same order (reproducible build, train/val never disagree).
+    Different rows -> different orders, so the model sees P(key | option-SET),
+    not P(key | option-LIST-ORDER). The keys travel with the description, so the
+    gold target (a key) is unchanged by the reordering.
+    """
+    seed = int.from_bytes(hashlib.sha256(uid.encode()).digest()[:8], "big")
+    opts = list(options)
+    random.Random(seed).shuffle(opts)
+    return opts
+
+
 def _row(uid, family, prompt, target, license_):
     return {"uid": uid, "family": family, "prompt": prompt, "target": target,
             "license": license_}
@@ -86,7 +102,7 @@ def _noul_pairs(uid, family, state, instructions, crit_true, crit_false, gold_bo
     return rows
 
 
-def build_banking77(cap: int | None = None) -> list[dict]:
+def build_banking77(cap: int | None = None, order_aug: bool = False) -> list[dict]:
     ds = load_from_disk(str(RAW / "banking77__train"))
     labels = sorted({str(r["label_text"]) for r in ds})
     if len(labels) != 77:
@@ -96,27 +112,41 @@ def build_banking77(cap: int | None = None) -> list[dict]:
     for i, r in enumerate(ds):
         if cap and i >= cap:
             break
+        uid = f"banking77/{i}"
         gold = str(r["label_text"])
-        rows.append(_row(f"banking77/{i}", "banking77",
+        rows.append(_row(uid, "banking77",
                          render(str(r["text"]), B77_INSTR, list(criteria.items())),
                          gold, "mit"))
+        if order_aug:
+            rows.append(_row(uid + "/s", "banking77",
+                             render(str(r["text"]), B77_INSTR,
+                                    _shuffled_options(uid, list(criteria.items()))),
+                             gold, "mit"))
     return rows
 
 
-def build_go_emotions(cap: int | None = None) -> list[dict]:
+def build_go_emotions(cap: int | None = None, order_aug: bool = False) -> list[dict]:
     ds = load_from_disk(str(RAW / "go_emotions__train"))
     criteria = [(lab, lab) for lab in GOE_LABELS]
     rows = []
     for i, r in enumerate(ds):
         if cap and i >= cap:
             break
+        uid = f"go_emotions/{i}"
         gold = GOE_LABELS[int(r["labels"][0])]
-        rows.append(_row(f"go_emotions/{i}", "go_emotions",
+        rows.append(_row(uid, "go_emotions",
                          render(str(r["text"]), GOE_INSTR, criteria), gold, "apache-2.0"))
+        if order_aug:
+            rows.append(_row(uid + "/s", "go_emotions",
+                             render(str(r["text"]), GOE_INSTR,
+                                    _shuffled_options(uid, criteria)),
+                             gold, "apache-2.0"))
     return rows
 
 
-def build_injection(cap: int | None = None) -> list[dict]:
+def build_injection(cap: int | None = None, order_aug: bool = False) -> list[dict]:
+    # noul = 2 options; order_aug accepted but unused (2-option swap is the
+    # negation twin's job, already emitted by _noul_pairs)
     ds = load_from_disk(str(RAW / "injection__train"))
     rows = []
     for i, r in enumerate(ds):
@@ -128,24 +158,30 @@ def build_injection(cap: int | None = None) -> list[dict]:
     return rows
 
 
-def build_severity(cap: int | None = None) -> list[dict]:
+def build_severity(cap: int | None = None, order_aug: bool = False) -> list[dict]:
     ds = load_from_disk(str(RAW / "severity__train"))
     opts = [(str(i), lev) for i, lev in enumerate(SEV_LEVELS)]  # 0-based wire levels
     rows = []
     for i, r in enumerate(ds):
         if cap and i >= cap:
             break
+        uid = f"severity/{i}"
         sev = str(r["severity"]).strip().lower()
         if sev not in SEV_LEVELS:
             continue
-        rows.append(_row(f"severity/{i}", "severity",
+        rows.append(_row(uid, "severity",
                          render(str(r["function"]), SEV_INSTR, opts),
                          str(SEV_LEVELS.index(sev)), "mit"))
+        if order_aug:
+            rows.append(_row(uid + "/s", "severity",
+                             render(str(r["function"]), SEV_INSTR,
+                                    _shuffled_options(uid, opts)),
+                             str(SEV_LEVELS.index(sev)), "mit"))
     return rows
 
 
-def build_boolq(cap: int | None = None) -> list[dict]:
-    """cc-by-sa: only with include_sa (research-only release line)."""
+def build_boolq(cap: int | None = None, order_aug: bool = False) -> list[dict]:
+    """cc-by-sa: only with include_sa (research-only release line). noul = 2 options."""
     ds = load_from_disk(str(RAW / "boolq__train"))
     rows = []
     for i, r in enumerate(ds):
@@ -173,11 +209,11 @@ DEFAULT_FAMILIES = ["banking77", "go_emotions", "injection", "severity"]  # perm
 
 
 def build_mixture(families: list[str] | None = None, cap: int | None = None,
-                  include_sa: bool = False) -> list[dict]:
+                  include_sa: bool = False, order_aug: bool = False) -> list[dict]:
     fams = families or (DEFAULT_FAMILIES + (["boolq"] if include_sa else []))
     rows: list[dict] = []
     for f in fams:
-        for row in BUILDERS[f](cap):
+        for row in BUILDERS[f](cap, order_aug):
             if row["license"] not in PERMISSIVE and not include_sa:
                 raise ValueError(
                     f"{row['uid']} is {row['license']}; permissive mixture "
@@ -207,8 +243,10 @@ if __name__ == "__main__":
     ap.add_argument("--out", default=str(ROOT / "data" / "processed" / "mixture_v1.jsonl"))
     ap.add_argument("--cap", type=int, default=None)
     ap.add_argument("--include-sa", action="store_true")
+    ap.add_argument("--order-aug", action="store_true",
+                    help="emit a shuffled-option twin for each choice row (order invariance)")
     ap.add_argument("--families", default=None)
     a = ap.parse_args()
     fams = a.families.split(",") if a.families else None
     print(json.dumps(write_mixture(Path(a.out), families=fams, cap=a.cap,
-                                   include_sa=a.include_sa), indent=1))
+                                   include_sa=a.include_sa, order_aug=a.order_aug), indent=1))
