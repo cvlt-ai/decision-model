@@ -1,0 +1,131 @@
+{
+ "model": "readout",
+ "device_note": "see CLI",
+ "families": {
+  "banking77": {
+   "n": 40,
+   "accuracy": 0.0,
+   "ece": 0.12388405155972808,
+   "brier": 0.015347258230853363,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.7": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.8": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.9": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.95": {
+     "coverage": 0.0,
+     "accuracy": null
+    }
+   },
+   "p50_ms": 15011.11849249719
+  },
+  "go_emotions": {
+   "n": 40,
+   "accuracy": 0.6,
+   "ece": 0.10083085102177035,
+   "brier": 0.20216250348649317,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.725,
+     "accuracy": 0.7241379310344828
+    },
+    "0.7": {
+     "coverage": 0.45,
+     "accuracy": 0.7777777777777778
+    },
+    "0.8": {
+     "coverage": 0.225,
+     "accuracy": 0.8888888888888888
+    },
+    "0.9": {
+     "coverage": 0.1,
+     "accuracy": 1.0
+    },
+    "0.95": {
+     "coverage": 0.075,
+     "accuracy": 1.0
+    }
+   },
+   "p50_ms": 1259.7529185077292
+  },
+  "mmlu_pro": {
+   "n": 40,
+   "accuracy": 0.325,
+   "ece": 0.21395624800992954,
+   "brier": 0.2155054864495331,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.275,
+     "accuracy": 0.6363636363636364
+    },
+    "0.7": {
+     "coverage": 0.175,
+     "accuracy": 0.5714285714285714
+    },
+    "0.8": {
+     "coverage": 0.1,
+     "accuracy": 0.5
+    },
+    "0.9": {
+     "coverage": 0.05,
+     "accuracy": 0.5
+    },
+    "0.95": {
+     "coverage": 0.0,
+     "accuracy": null
+    }
+   },
+   "p50_ms": 54.99712700111559
+  },
+  "pubhealth": {
+   "n": 40,
+   "accuracy": 0.8,
+   "ece": 0.23055452911824695,
+   "brier": 0.20089900576218095,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.625,
+     "accuracy": 0.88
+    },
+    "0.7": {
+     "coverage": 0.25,
+     "accuracy": 1.0
+    },
+    "0.8": {
+     "coverage": 0.125,
+     "accuracy": 1.0
+    },
+    "0.9": {
+     "coverage": 0.0,
+     "accuracy": null
+    },
+    "0.95": {
+     "coverage": 0.0,
+     "accuracy": null
+    }
+   },
+   "p50_ms": 54.51179800002137
+  }
+ },
+ "macro": {
+  "accuracy": 0.43125,
+  "ece": 0.09699271986017786,
+  "brier": 0.15847856348226516,
+  "p50_ms": 639.37043450278,
+  "perm_mean_max_shift": 0.14633749692288178,
+  "perm_flip_rate": 0.371875,
+  "negation_mean_violation": null
+ }
+}

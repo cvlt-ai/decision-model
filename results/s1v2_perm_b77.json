@@ -1,0 +1,46 @@
+{
+ "model": "readout",
+ "device_note": "see CLI",
+ "families": {
+  "banking77": {
+   "n": 12,
+   "accuracy": 1.0,
+   "ece": 0.020114351736021552,
+   "brier": 0.0010991301725901553,
+   "coverage": {
+    "0.5": {
+     "coverage": 1.0,
+     "accuracy": 1.0
+    },
+    "0.7": {
+     "coverage": 1.0,
+     "accuracy": 1.0
+    },
+    "0.8": {
+     "coverage": 1.0,
+     "accuracy": 1.0
+    },
+    "0.9": {
+     "coverage": 1.0,
+     "accuracy": 1.0
+    },
+    "0.95": {
+     "coverage": 0.9166666666666666,
+     "accuracy": 1.0
+    }
+   },
+   "p50_ms": 10119.142728988663,
+   "perm_mean_max_shift": 0.024992208944517074,
+   "perm_flip_rate": 0.0
+  }
+ },
+ "macro": {
+  "accuracy": 1.0,
+  "ece": 0.020114351736021552,
+  "brier": 0.0010991301725901553,
+  "p50_ms": 10119.142728988663,
+  "perm_mean_max_shift": 0.024992208944517074,
+  "perm_flip_rate": 0.0,
+  "negation_mean_violation": null
+ }
+}
