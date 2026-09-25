@@ -1,0 +1,108 @@
+{
+ "model": "readout",
+ "device_note": "see CLI",
+ "families": {
+  "go_emotions": {
+   "n": 40,
+   "accuracy": 0.625,
+   "ece": 0.12290381178583164,
+   "brier": 0.21346572656543666,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.8,
+     "accuracy": 0.6875
+    },
+    "0.7": {
+     "coverage": 0.45,
+     "accuracy": 0.7777777777777778
+    },
+    "0.8": {
+     "coverage": 0.35,
+     "accuracy": 0.7857142857142857
+    },
+    "0.9": {
+     "coverage": 0.075,
+     "accuracy": 0.6666666666666666
+    },
+    "0.95": {
+     "coverage": 0.05,
+     "accuracy": 1.0
+    }
+   },
+   "p50_ms": 971.9290554930922,
+   "perm_mean_max_shift": 0.029879496801163904,
+   "perm_flip_rate": 0.05
+  },
+  "mmlu_pro": {
+   "n": 40,
+   "accuracy": 0.275,
+   "ece": 0.3336625405684418,
+   "brier": 0.32271855610652156,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.65,
+     "accuracy": 0.3076923076923077
+    },
+    "0.7": {
+     "coverage": 0.3,
+     "accuracy": 0.3333333333333333
+    },
+    "0.8": {
+     "coverage": 0.2,
+     "accuracy": 0.25
+    },
+    "0.9": {
+     "coverage": 0.1,
+     "accuracy": 0.25
+    },
+    "0.95": {
+     "coverage": 0.0,
+     "accuracy": null
+    }
+   },
+   "p50_ms": 52.24964249646291,
+   "perm_mean_max_shift": 0.3431132264895034,
+   "perm_flip_rate": 0.4875
+  },
+  "pubhealth": {
+   "n": 40,
+   "accuracy": 0.6,
+   "ece": 0.19402246320160185,
+   "brier": 0.2077567541926401,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.75,
+     "accuracy": 0.6666666666666666
+    },
+    "0.7": {
+     "coverage": 0.45,
+     "accuracy": 0.7777777777777778
+    },
+    "0.8": {
+     "coverage": 0.35,
+     "accuracy": 0.8571428571428571
+    },
+    "0.9": {
+     "coverage": 0.2,
+     "accuracy": 0.875
+    },
+    "0.95": {
+     "coverage": 0.15,
+     "accuracy": 0.8333333333333334
+    }
+   },
+   "p50_ms": 46.450160996755585,
+   "perm_mean_max_shift": 0.26209674222584395,
+   "perm_flip_rate": 0.3125
+  }
+ },
+ "macro": {
+  "accuracy": 0.5,
+  "ece": 0.17106165340824797,
+  "brier": 0.2479803456215328,
+  "p50_ms": 54.96643448714167,
+  "perm_mean_max_shift": 0.21169648850550374,
+  "perm_flip_rate": 0.2833333333333333,
+  "negation_mean_violation": null
+ }
+}
