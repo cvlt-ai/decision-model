@@ -5,19 +5,19 @@ primitives, RLCD-trained on proper scoring rules). Plan:
 `~/.hermes/plans/2026-09-22_134149-jev-decision-model-research-and-local-training.md`;
 research/01..05 for findings.
 
-## ⏰ OVERNIGHT (user asleep) — do not block on user
-- **s1-v3 training running** (proc tracked, completion-notify): `checkpoints/s1-v3`,
-  Qwen3.5-4B LoRA, 1 epoch, mixture_v3 (order-aug + boolq), bs=2/accum=16
-  (effective batch 32; lowered from 4/8 to survive a long boolq-passage GPU OOM —
-  attempt 1 OOM-killed at step 3782/4021 with no adapter saved).
-- **Orchestrator running** (`scripts/overnight.sh`): waits for the "saved" marker,
-  then auto-runs `scripts/eval_v3.sh` = frozen 9-family suite (300/fam) + fresh
-  permutation (clean@40, b77@12) + OFFLINE temperature calibration
-  (`scripts/calibrate.py`) + `scripts/compare_models.py` → commits.
-  Log: `results/overnight_orchestrator.log`. Outputs land in `results/`:
-  s1v3_frozen_300.json, s1v3_perm_clean.json, calibration_s1v3.json,
-  compare_models_latest.txt.
-- On wake: read `results/compare_models_latest.txt` + STATE.md "v3 result" note.
+## ✅ v3 RESULT (done overnight 2026-09-25) — see research/06-s1v3-final.md
+- **v3 = best checkpoint on all four headline axes.** macro **0.727** (Laya 0.410),
+  negation violation **0.030** (Jev doc 0.19 → 6× better), post-cal **ECE 0.0265**
+  (under 0.03 gate) + **Brier 0.1397** (best of all versions), MMLU-Pro 0.30 (≫ Laya
+  0.137, still ≪ Jev 0.83). banking77 0.0→**0.960**. Beats Laya on all 9 families.
+- v3 vs v2 is a trade, not a sweep: v3 best on macro/negation/banking77/Brier/
+  injection/severity; v2 marginally better on pubhealth (0.690 vs 0.613) + baserate
+  (0.926 vs 0.815, 25-row noisy family). For "beat Jev" the headline axes matter → v3.
+- Calibration (paper's mandatory phase) DONE offline: `scripts/calibrate.py`.
+  v3 raw ECE 0.062 (most confident model) → T=1.4 → ECE 0.0265 / Brier 0.1397.
+- Order-augmentation proven on a trained family (go_emotions flip 0.113→0.05/0.0).
+  mmlu/pubhealth zero-shot flip still ~0.48/0.31 (not in training mix) → future item.
+- THE GAP IS KNOWLEDGE: MMLU-Pro 0.30 vs Jev 0.83 → TSI-breadth mixture is next.
 
 ## v2 result (already in — see research/05 + compare_models.py)
 - macro acc **0.710** (v1 0.592, Laya 0.410); ECE 0.037; Brier 0.161.
