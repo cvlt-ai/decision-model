@@ -12,8 +12,16 @@
 # bs=1/accum=32 (NOT the default 4/8): same effective batch 32, same ~4021
 # steps, but the per-sample peak is much lower — essential at 4096 context where
 # the long rows (severity max 18k, banking77 ~792) would OOM at bs=2.
+#
+# SIGBUS guards (attempt 1 died at step 1847 with exit 135, no traceback):
+#   * PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  -> less GPU frag OOM
+#   * OMP_NUM_THREADS/MKL_NUM_THREADS=8                 -> BLAS oversubscription
+#     is the known SIGBUS cause under concurrent llama-server (GPU1/2)
 set -uo pipefail
 cd /home/user/decision-model
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export OMP_NUM_THREADS=8
+export MKL_NUM_THREADS=8
 exec .venv/bin/python scripts/train_s1.py \
   --model Qwen/Qwen3.5-4B \
   --epochs 1 \
