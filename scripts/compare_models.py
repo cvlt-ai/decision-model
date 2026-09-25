@@ -18,6 +18,7 @@ MODELS = {
     "s1-v1": "s1v1_frozen_300.json",
     "s1-v2": "s1v2_frozen_300.json",
     "s1-v3": "s1v3_frozen_300.json",
+    "s1-v4": "s1v4_frozen_300.json",
     "laya": "laya_frozen_300.json",
 }
 
