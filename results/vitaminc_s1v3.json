@@ -1,0 +1,44 @@
+{
+ "model": "readout",
+ "device_note": "see CLI",
+ "families": {
+  "vitaminc": {
+   "n": 300,
+   "accuracy": 0.7133333333333334,
+   "ece": 0.17042146519652285,
+   "brier": 0.19962582807970902,
+   "coverage": {
+    "0.5": {
+     "coverage": 0.95,
+     "accuracy": 0.7368421052631579
+    },
+    "0.7": {
+     "coverage": 0.83,
+     "accuracy": 0.7670682730923695
+    },
+    "0.8": {
+     "coverage": 0.7433333333333333,
+     "accuracy": 0.8026905829596412
+    },
+    "0.9": {
+     "coverage": 0.6033333333333334,
+     "accuracy": 0.8453038674033149
+    },
+    "0.95": {
+     "coverage": 0.48333333333333334,
+     "accuracy": 0.8896551724137931
+    }
+   },
+   "p50_ms": 91.1336604913231
+  }
+ },
+ "macro": {
+  "accuracy": 0.7133333333333334,
+  "ece": 0.17042146519652285,
+  "brier": 0.19962582807970902,
+  "p50_ms": 91.1336604913231,
+  "perm_mean_max_shift": null,
+  "perm_flip_rate": null,
+  "negation_mean_violation": null
+ }
+}

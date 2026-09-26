@@ -1,0 +1,21 @@
+{
+ "n_families": 200,
+ "n_rows": 690,
+ "accuracy": 0.7826,
+ "per_class": {
+  "SUPPORTS": {
+   "n": 345,
+   "acc": 0.9159
+  },
+  "REFUTES": {
+   "n": 254,
+   "acc": 0.7717
+  },
+  "NOT ENOUGH INFO": {
+   "n": 91,
+   "acc": 0.3077
+  }
+ },
+ "lazy_rate": 0.175,
+ "sensitivity_rate": 0.825
+}

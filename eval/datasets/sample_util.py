@@ -15,6 +15,7 @@ SEEDS = {
     "pubhealth": 20260927,
     "negation": 20260928,
     "baserate": 20260929,
+    "vitaminc": 20260930,
 }
 
 

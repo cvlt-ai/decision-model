@@ -22,6 +22,7 @@ def all_adapters() -> dict:
         negation,
         pubhealth,
         severity,
+        vitaminc,
     )
 
     return REGISTRY
