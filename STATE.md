@@ -1,11 +1,22 @@
-# Project state — 2026-09-24
+# Project state — 2026-09-26
 
 Goal: local, open Jev-competitor ("System One" decision model; choice/score/noul
 primitives, RLCD-trained on proper scoring rules). Plan:
 `~/.hermes/plans/2026-09-22_134149-jev-decision-model-research-and-local-training.md`;
 research/01..05 for findings.
 
-## ✅ v3 RESULT (done overnight 2026-09-25) — see research/06-s1v3-final.md
+## ✅ v4 RESULT (2026-09-26) — see research/08-s1v4-4096.md — v3 STILL best
+- s1-v4 = 4096-context retrain of mixture_v3 (bs=1/accum=32, 4021 steps, loss→0.267,
+  SIGBUS guards held, no crash). **Diagnosed, not a win:**
+  - JevBench: v4@1024=156 (== v3@1024, no regression); v4@4096=155 (hard 41) is BELOW
+    v3@4096 (hard 46). The 4096 retrain did NOT beat the free 4096 window on v3.
+  - Frozen: macro 0.727→0.723 (flat); per-family wash (injection↑0.968, mmlu/pub↓).
+  - Calibration got WORSE: ECE@T1 0.062→0.110; post-cal 0.0331→0.0433 (bs1/4096 dynamics).
+- CONCLUSION: hard-tier gap is DATA/knowledge, not context. Mixture has only 40 rows
+  >1024 tokens. Best numbers we hold: v3 frozen (macro 0.727, negation 0.030, post-cal
+  ECE 0.0331) + v3@4096-window (JevBench 0.693, hard 46 — free serving change).
+
+## v3 result — see research/06-s1v3-final.md
 - **v3 = best checkpoint on all four headline axes.** macro **0.727** (Laya 0.410),
   negation violation **0.030** (Jev doc 0.19 → 6× better), post-cal **ECE 0.0265**
   (under 0.03 gate) + **Brier 0.1397** (best of all versions), MMLU-Pro 0.30 (≫ Laya
@@ -30,20 +41,23 @@ research/01..05 for findings.
   is the fix; watch whether negation returns to ~0.03.
 
 ## Checkpoints
-- `checkpoints/s1-v1` (75,822-row mix, 2ep, loss→0.33) — negation 0.032 (best on that axis so far)
+- `checkpoints/s1-v1` (75,822-row mix, 2ep, loss→0.33)
 - `checkpoints/s1-v2` (112,844-row order-aug mix, 1ep) — macro 0.710, negation regressed
-- `checkpoints/s1-v3` (131,698-row order-aug + boolq, 1ep) — IN FLIGHT
+- `checkpoints/s1-v3` (131,698-row order-aug + boolq, 1ep) — **BEST: macro 0.727, negation 0.030**
+- `checkpoints/s1-v4` (same mix, 4096-context, 1ep) — context-capable, no regression, but data-bound
 
 ## Not done (next, in order)
-1. **Confirm v3**: negation recovered? banking77 ~0.95 held? macro ≥0.71?
-   (compare_models_latest.txt)
-2. **Calibration** already in the overnight chain (offline, no GPU) — bank ECE under 0.03.
-3. **TSI-breadth mixture** → the 5.3M-row general-instruction data; this is what
-   closes the mmlu_pro knowledge gap toward Jev's 83% (still our biggest deficit).
-4. `scripts/decontaminate.py` MinHash fuzzy pass (exact-substring pass is done) —
-   MANDATORY before any release claim.
-5. Full 35,594-row frozen run for the release number (currently 300/family samples).
-6. Jev-compatible FastAPI server (`src/s1/schema.py` already speaks the wire format).
+1. **TSI-breadth mixture (mixture_v5 = mixture_v3 + TSI long/general rows)** — NOW the
+   clear move (v4 proved context alone isn't the lever; the gap is long-policy + general
+   knowledge data). Train at 4096 (v4's context won't truncate the long TSI rows).
+   Inventory already on disk: `data/raw/tsi_task_counts.json` (5,314,383 rows / 510
+   tasks); license-filter to exclude anli/*.
+2. `scripts/decontaminate.py` MinHash fuzzy pass (exact-substring done) — MANDATORY
+   before a release claim.
+3. Full 35,594-row frozen run for the release number (currently 300/family samples).
+4. Optionally: order-consistency contrastive loss to close the zero-shot perm gap on
+   untrained families (mmlu/pubhealth flip ~0.48/0.31).
+5. Jev-compatible FastAPI server (`src/s1/schema.py` already speaks the wire format).
 
 ## Conventions
 - uv venv at `.venv`; run by `.venv/bin/python` (conda activate is broken in this shell).
