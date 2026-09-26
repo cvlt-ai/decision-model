@@ -51,12 +51,19 @@ FAMILIES = [
 
 
 def build_holdout(limit: int | None = None, families: list[str] | None = None) -> dict:
-    """Materialise the frozen suite. limit=None -> full configured N per family."""
+    """Materialise the frozen suite. limit=None -> full configured N per family.
+
+    Merges with any existing MANIFEST.json: building a subset (e.g. adding one new
+    axis) must not drop the entries for the families already on disk.
+    """
     all_adapters()
     from eval import datasets as dsmod  # registry now populated
 
     HOLDOUT.mkdir(parents=True, exist_ok=True)
-    manifest = {"created": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "families": {}}
+    mp = HOLDOUT / "MANIFEST.json"
+    prev = json.loads(mp.read_text()) if mp.exists() else {}
+    manifest = {"created": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                "families": dict(prev.get("families", {}))}
     counts = {}
     for fam in families or FAMILIES:
         fn = dsmod.REGISTRY[fam]
@@ -76,7 +83,7 @@ def build_holdout(limit: int | None = None, families: list[str] | None = None) -
             "adapter": f"{fn.__module__}:{fn.__qualname__}",
         }
         counts[fam] = len(rows)
-    (HOLDOUT / "MANIFEST.json").write_text(json.dumps(manifest, indent=1))
+    mp.write_text(json.dumps(manifest, indent=1))
     return counts
 
 
