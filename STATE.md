@@ -5,6 +5,21 @@ primitives, RLCD-trained on proper scoring rules). Plan:
 `~/.hermes/plans/2026-09-22_134149-jev-decision-model-research-and-local-training.md`;
 research/01..05 for findings.
 
+## 🔵 s1-v5 IN FLIGHT (launched 2026-09-26 ~10:54 EDT, ~16h ETA) — OVERNIGHT (user may be asleep; don't block)
+- **v5 = mixture_v5 (v3 + Nimble c2d contrastive line) at 4096**, bs=1/accum=32, ~4,158 steps.
+  The c2d line tests whether contrastive data moves the EVIDENCE-SENSITIVITY axis.
+- Training pid 2023929 (proc_972e05d2d220); supervisor pid 2024383 (proc_3f128f6ec746)
+  = `bash scripts/supervise_v5.sh 2023929 3`, log `results/overnight_v5.log`; relaunches
+  <=3x on pre-save death, then runs `scripts/eval_v5.sh` + commits + `MORNING:` line.
+- On-disk: `checkpoints/s1-v5_launch.log`, `checkpoints/s1-v5_log.jsonl`,
+  `checkpoints/s1-v5/` (adapter on save).
+- **On wake, check `results/overnight_v5.log` for the `MORNING:` lines.** Headline =
+  VitaminC flip probe v5 vs v3 baseline: v3 NEI acc **0.308** / lazy **0.175** / acc 0.783
+  (200 conflict families). If v5's NEI/lazy move, the c2d bet works; if flat, the line
+  needs more weight (upsample c2d) or TSI breadth is the bigger lever.
+- regression checks in the chain: frozen 9-family (v3 macro 0.727, negation 0.030) +
+  JevBench @4096 (v3 0.693).
+
 ## ✅ v4 RESULT (2026-09-26) — see research/08-s1v4-4096.md — v3 STILL best
 - s1-v4 = 4096-context retrain of mixture_v3 (bs=1/accum=32, 4021 steps, loss→0.267,
   SIGBUS guards held, no crash). **Diagnosed, not a win:**
