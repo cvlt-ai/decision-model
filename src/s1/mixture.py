@@ -41,6 +41,7 @@ from eval.datasets.severity import LEVELS as SEV_LEVELS  # noqa: E402
 
 PERMISSIVE = {"mit", "apache-2.0"}
 SA = {"cc-by-sa-3.0", "cc-by-sa-4.0"}
+SYNTHETIC = {"bespoke-synthetic"}  # Nimble c2d pairs (GPT-5.6, model-checked, no stated license)
 
 
 def render(state, instructions, options: list[tuple[str, str]]) -> str:
@@ -198,26 +199,113 @@ def build_boolq(cap: int | None = None, order_aug: bool = False) -> list[dict]:
     return rows
 
 
+def _nimble_state_to_str(state) -> str:
+    """Nimble `input.state` is either a list of {speaker, text} turns, a list
+    of plain statement strings, a single string, or a dict. `render` wants a
+    plain string. Turns -> `Speaker: text` lines; plain strings -> one line
+    each (keeps the multi-part structure the c2d curation relies on)."""
+    if isinstance(state, str):
+        return state
+    if isinstance(state, dict):
+        return json.dumps(state, ensure_ascii=False)
+    lines = []
+    for turn in state:
+        if isinstance(turn, dict):
+            spk = str(turn.get("speaker", "")).strip()
+            txt = str(turn.get("text", "")).strip()
+            lines.append(f"{spk}: {txt}" if spk else txt)
+        else:
+            lines.append(str(turn).strip())
+    return "\n".join(lines)
+
+
+def build_nimble_c2d(cap: int | None = None, order_aug: bool = False) -> list[dict]:
+    """Nimble contrastive (c2d) pairs -> Jev decision rows (bespoke-synthetic).
+
+    Their `input` is the Jev wire schema: state + one questions.<field> with
+    {type, criteria, instructions}. We map all three types onto our render():
+      choice -> criteria dict  -> options [(key, desc)],  target = reference key
+      noul   -> criteria dict  -> options true/false,      target = "true"/"false"
+      score  -> criteria LIST  -> options [(str(i), desc)], target = str(i)
+    The score mapping is exactly our severity 0-based wire convention.
+    Both the base and counterfactual rows are kept (the flip IS the signal);
+    order_aug emits a shuffled-option twin for the choice/score rows.
+    License `bespoke-synthetic` gates it behind --include-c2d.
+    """
+    src = RAW / "nimble_c2d_train.jsonl"
+    rows: list[dict] = []
+    for i, line in enumerate(src.read_text().splitlines()):
+        if not line.strip():
+            continue
+        if cap and i >= cap:
+            break
+        rec = json.loads(line)
+        state = _nimble_state_to_str(rec["input"].get("state"))
+        q = next(iter(rec["input"]["questions"].values()))
+        qtype = q.get("type")
+        instr = str(q.get("instructions", "")).strip()
+        target = rec["reference"]["target"]
+        uid = f"nimble/{rec['id']}"
+        if qtype == "choice":
+            options = list(q.get("criteria", {}).items())
+            tgt = str(target)
+            rows.append(_row(uid, "nimble", render(state, instr, options), tgt,
+                             "bespoke-synthetic"))
+            if order_aug:
+                rows.append(_row(uid + "/s", "nimble",
+                                 render(state, instr, _shuffled_options(uid, options)),
+                                 tgt, "bespoke-synthetic"))
+        elif qtype == "noul":
+            crit = q.get("criteria", {})
+            options = [("true", crit.get("true", "the proposition holds")),
+                       ("false", crit.get("false", "the proposition does not hold"))]
+            tgt = "true" if target in (True, "true") else "false"
+            rows.append(_row(uid, "nimble", render(state, instr, options), tgt,
+                             "bespoke-synthetic"))
+            # noul = 2 options; the flip twin is already a distinct c2d row,
+            # so order_aug (swap) is redundant here -> accept but ignore
+        elif qtype == "score":
+            crit = q.get("criteria", [])
+            options = [(str(idx), str(desc)) for idx, desc in enumerate(crit)]
+            tgt = str(int(target))
+            rows.append(_row(uid, "nimble", render(state, instr, options), tgt,
+                             "bespoke-synthetic"))
+            if order_aug:
+                rows.append(_row(uid + "/s", "nimble",
+                                 render(state, instr, _shuffled_options(uid, options)),
+                                 tgt, "bespoke-synthetic"))
+        else:
+            raise ValueError(f"nimble row {rec['id']}: unknown question type {qtype}")
+    return rows
+
+
 BUILDERS = {
     "banking77": build_banking77,
     "go_emotions": build_go_emotions,
     "injection": build_injection,
     "severity": build_severity,
     "boolq": build_boolq,
+    "nimble": build_nimble_c2d,
 }
 DEFAULT_FAMILIES = ["banking77", "go_emotions", "injection", "severity"]  # permissive only
 
 
 def build_mixture(families: list[str] | None = None, cap: int | None = None,
-                  include_sa: bool = False, order_aug: bool = False) -> list[dict]:
-    fams = families or (DEFAULT_FAMILIES + (["boolq"] if include_sa else []))
+                  include_sa: bool = False, order_aug: bool = False,
+                  include_c2d: bool = False) -> list[dict]:
+    fams = families or (DEFAULT_FAMILIES
+                        + (["boolq"] if include_sa else [])
+                        + (["nimble"] if include_c2d else []))
     rows: list[dict] = []
     for f in fams:
         for row in BUILDERS[f](cap, order_aug):
-            if row["license"] not in PERMISSIVE and not include_sa:
+            lic_ok = (row["license"] in PERMISSIVE
+                      or (row["license"] in SA and include_sa)
+                      or (row["license"] in SYNTHETIC and include_c2d))
+            if not lic_ok:
                 raise ValueError(
-                    f"{row['uid']} is {row['license']}; permissive mixture "
-                    f"requires include_sa=True (research-only line)")
+                    f"{row['uid']} is {row['license']}; not enabled "
+                    f"(permissive only, or use --include-sa / --include-c2d)")
             rows.append(row)
     uids = [r["uid"] for r in rows]
     assert len(uids) == len(set(uids)), "duplicate uids in mixture"
@@ -245,8 +333,11 @@ if __name__ == "__main__":
     ap.add_argument("--include-sa", action="store_true")
     ap.add_argument("--order-aug", action="store_true",
                     help="emit a shuffled-option twin for each choice row (order invariance)")
+    ap.add_argument("--include-c2d", action="store_true",
+                    help="add Nimble c2d contrastive pairs (bespoke-synthetic)")
     ap.add_argument("--families", default=None)
     a = ap.parse_args()
     fams = a.families.split(",") if a.families else None
     print(json.dumps(write_mixture(Path(a.out), families=fams, cap=a.cap,
-                                   include_sa=a.include_sa, order_aug=a.order_aug), indent=1))
+                                   include_sa=a.include_sa, order_aug=a.order_aug,
+                                   include_c2d=a.include_c2d), indent=1))
