@@ -40,8 +40,9 @@ PUBLIC = JEB / "datasets" / "public"
 TIERS = {"standard": "original.jsonl", "easy": "easy.jsonl", "hard": "hard.jsonl"}
 
 
-def make_adapter(ckpt: str, base: str, device: str, temperature: float, key_batch: int):
-    call = readout_build(ckpt, base, device, temperature, 1024, key_batch=key_batch)
+def make_adapter(ckpt: str, base: str, device: str, temperature: float, key_batch: int,
+                 max_len: int = 1024):
+    call = readout_build(ckpt, base, device, temperature, max_len, key_batch=key_batch)
 
     def run(task) -> dict:
         """-> DecisionResult-shaped dict {ok, probs, latency_s, error}"""
@@ -78,12 +79,14 @@ def main():
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--temperature", type=float, default=1.0)
     ap.add_argument("--key-batch", type=int, default=8)
+    ap.add_argument("--max-len", type=int, default=1024,
+                    help="readout context window (1024=trained; 4096 keeps long policies whole)")
     ap.add_argument("--tiers", default=",".join(TIERS))
     ap.add_argument("--out", default="results/jevbench_s1v3_public231.json")
     a = ap.parse_args()
 
     tiers = [t for t in a.tiers.split(",") if t]
-    run = make_adapter(a.ckpt, a.base, a.device, a.temperature, a.key_batch)
+    run = make_adapter(a.ckpt, a.base, a.device, a.temperature, a.key_batch, a.max_len)
 
     all_records = []
     tier_acc = {}
@@ -135,7 +138,7 @@ def main():
     total_c = sum(v["correct"] for v in tier_acc.values())
     ece = ece_top_label(list(zip(pair_conf, pair_ok)))
     result = {
-        "model": a.ckpt, "tiers": tier_acc,
+        "model": a.ckpt, "max_len": a.max_len, "tiers": tier_acc,
         "overall": {"n": total_n, "correct": total_c, "accuracy": total_c / total_n if total_n else None},
         "ece_10bin_top_label": ece["ece"],
         "brier": brier_sum / brier_n if brier_n else None,
