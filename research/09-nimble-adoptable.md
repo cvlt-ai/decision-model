@@ -61,3 +61,31 @@ order-aug) behind `--include-c2d`; 0 decontam drops (disjoint synthetic domains)
 Cheapest high-signal first move (DONE in 8.2): c2d line built + tested (72 CPU
 green). Remaining: **add VitaminC-dev to the frozen suite** (human-labeled
 contrastive eval) and train `mixture_v5` at 4096 (v4's context).
+
+## VitaminC axis built (9.1/9.2) — v3 baseline is in
+
+Added as an **additive** contrastive eval family (NOT in the 9-family macro, so
+prior numbers stay comparable). `tals/vitaminc` validation split == the published
+63,054-row contrastive dev set (case_id groups Wikipedia-revision siblings; 99% of
+families flip labels). 3-way choice SUPPORTS/REFUTES/NOT-ENOUGH-INFO, CC-BY-SA.
+
+Random 300 under-measures the flip property (only 1 conflict-family in it), so the
+honest instrument is `scripts/vitaminc_flip_probe.py`: scores case_ids with >=2
+conflicting siblings.
+
+**v3 BASELINE (200 conflict families, 690 rows):**
+| metric | value |
+|---|---|
+| overall accuracy | 0.783 |
+| SUPPORTS | 0.916 |
+| REFUTES | 0.772 |
+| **NOT ENOUGH INFO** | **0.308** ← the weakness |
+| lazy_rate (same label for all siblings) | 0.175 |
+| sensitivity_rate (varied + >=1 right) | 0.825 |
+
+Reference (Nimble's own suite, their 599-row draw): Nimble-9B 76.6%, Jev 1.13 80.1%.
+The two numbers the c2d data should move when v5 lands: **NEI accuracy (0.308) and
+lazy_rate (0.175)**. Re-run the same probe on v5 to get the before/after.
+
+Also fixed (9.2): `build_holdout` now **merges** the MANIFEST (a subset build no
+longer clobbers the other families); all 9 original families verified byte-identical.
