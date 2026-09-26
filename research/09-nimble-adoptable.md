@@ -48,11 +48,16 @@ our binding constraint.
 ## Verdict vs the TSI plan
 **Complement, not replacement.** They attack different parts of the hard gap:
 - **TSI-breadth** (5.3M general rows) → *knowledge* (mmlu_pro 0.25→, breadth).
-- **Nimble contrastive** (c2d pairs) → *evidence-sensitivity / base-rate /
-  long-policy* (the "fits-but-wrong" hard items, negation-adjacent).
+- **Nimble c2d pairs** → *evidence-sensitivity / base-rate / long-policy* (the
+  "fits-but-wrong" hard items, negation-adjacent).
 
-Cheapest high-signal first move: **add a c2d contrastive pair line to our
-mixture** (reuse their 1,338 pairs directly — they're committed and format-clean —
-plus generate a few thousand more over our banking77/go_emotions/severity families
-where we already have the policy+state), and **add VitaminC-dev to the frozen
-suite** as the human-labeled contrastive eval. Then train at 4096 (v4's context).
+**Corrected after building (8.2):** the c2d rows are actually **short-to-medium**
+(p50 441, p95 601, **max 929 tokens** — none over 1024). So their value is the
+**contrastive structure** (near-identical state, one fact changed → label flips),
+i.e. evidence-sensitivity — NOT long-context. That's a different, complementary
+lever from TSI's breadth. All 2,676 pairs are in `mixture_v5` (4,464 rows with
+order-aug) behind `--include-c2d`; 0 decontam drops (disjoint synthetic domains).
+
+Cheapest high-signal first move (DONE in 8.2): c2d line built + tested (72 CPU
+green). Remaining: **add VitaminC-dev to the frozen suite** (human-labeled
+contrastive eval) and train `mixture_v5` at 4096 (v4's context).

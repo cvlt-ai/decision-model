@@ -47,17 +47,20 @@ research/01..05 for findings.
 - `checkpoints/s1-v4` (same mix, 4096-context, 1ep) — context-capable, no regression, but data-bound
 
 ## Not done (next, in order)
-1. **TSI-breadth mixture (mixture_v5 = mixture_v3 + TSI long/general rows)** — NOW the
-   clear move (v4 proved context alone isn't the lever; the gap is long-policy + general
-   knowledge data). Train at 4096 (v4's context won't truncate the long TSI rows).
-   Inventory already on disk: `data/raw/tsi_task_counts.json` (5,314,383 rows / 510
-   tasks); license-filter to exclude anli/*.
-2. `scripts/decontaminate.py` MinHash fuzzy pass (exact-substring done) — MANDATORY
-   before a release claim.
-3. Full 35,594-row frozen run for the release number (currently 300/family samples).
-4. Optionally: order-consistency contrastive loss to close the zero-shot perm gap on
+1. **Add VitaminC-dev to the frozen suite** (human-labeled contrastive eval,
+   complements our `negation` family). Then **train `mixture_v5` at 4096** —
+   the c2d contrastive line is already built (see 8.2); v4's 4096 context won't
+   truncate. c2d rows are short (max 929 tok) — value is evidence-sensitivity,
+   not context.
+2. **TSI-breadth mixture** (5.3M general rows) — still queued for the *knowledge*
+   gap (mmlu_pro 0.25→). Complements c2d (breadth vs contrast). Inventory:
+   `data/raw/tsi_task_counts.json` (5,314,383 rows / 510 tasks); license-filter
+   to exclude anli/*.
+3. `scripts/decontaminate.py` MinHash fuzzy pass (exact-substring done; c2d = 0 drops).
+4. Full 35,594-row frozen run for the release number (currently 300/family samples).
+5. Optionally: order-consistency contrastive loss to close the zero-shot perm gap on
    untrained families (mmlu/pubhealth flip ~0.48/0.31).
-5. Jev-compatible FastAPI server (`src/s1/schema.py` already speaks the wire format).
+6. Jev-compatible FastAPI server (`src/s1/schema.py` already speaks the wire format).
 
 ## Conventions
 - uv venv at `.venv`; run by `.venv/bin/python` (conda activate is broken in this shell).
