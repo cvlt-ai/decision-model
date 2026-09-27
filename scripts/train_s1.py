@@ -139,6 +139,14 @@ def load_rows(mixture: Path, decontam: bool):
     return (train, val), stats  # type: ignore[return-value]
 
 
+def _save_checkpoint(model, tok, out: str) -> None:
+    """Overwrite the LoRA adapter + tokenizer at `out`. Safe to call repeatedly."""
+    outdir = Path(out)
+    outdir.mkdir(parents=True, exist_ok=True)
+    model.save_pretrained(str(outdir))
+    tok.save_pretrained(str(outdir))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="Qwen/Qwen3.5-4B")
@@ -153,6 +161,10 @@ def main():
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--no-decontam", action="store_true")
     ap.add_argument("--force", action="store_true", help="start even with <8GB GPU free")
+    ap.add_argument("--save-every", type=int, default=0,
+                    help="overwrite the adapter in --out every N optimizer steps "
+                         "(0=only at end). Insurance for long runs: a mid-run crash "
+                         "still leaves a usable adapter.")
     a = ap.parse_args()
 
     if a.device == "cuda":
@@ -199,6 +211,8 @@ def main():
 
     global_step, t0, run_loss = 0, time.time(), 0.0
     model.train()
+    print(json.dumps({"stage": "pre-loop", "n_train": len(ds_tr),
+                      "steps_per_epoch": steps_per_epoch}), flush=True)
     done = False
     for ep in range(a.epochs):
         perm = torch.randperm(len(ds_tr)).tolist()
@@ -222,6 +236,9 @@ def main():
                 print(json.dumps(rec), flush=True)
                 with logf.open("a") as fh:
                     fh.write(json.dumps(rec) + "\n")
+                if a.save_every and global_step % a.save_every == 0:
+                    _save_checkpoint(model, tok, a.out)
+                    print(json.dumps({"stage": "ckpt", "steps": global_step}), flush=True)
                 if a.steps and global_step >= a.steps:
                     done = True
                     break
@@ -230,8 +247,7 @@ def main():
 
     outdir = Path(a.out)
     outdir.mkdir(parents=True, exist_ok=True)
-    model.save_pretrained(outdir)
-    tok.save_pretrained(outdir)
+    _save_checkpoint(model, tok, a.out)
     print(json.dumps({"stage": "saved", "path": str(outdir), "steps": global_step}), flush=True)
 
 
