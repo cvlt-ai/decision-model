@@ -80,7 +80,11 @@ def collate(batch, pad_id):
 
 
 def load_rows(mixture: Path, decontam: bool):
-    rows = [json.loads(ln) for ln in mixture.read_text().splitlines()]
+    # split on \n only (NOT splitlines): TSI prompts can embed U+2028 / U+0085,
+    # which json.dumps(ensure_ascii=False) leaves literal and splitlines() would
+    # break mid-JSON. json.dumps always escapes real newlines as \\n, so \n is
+    # the only true line delimiter in the file.
+    rows = [json.loads(ln) for ln in mixture.read_text().split("\n") if ln.strip()]
     stats = {"n_raw": len(rows)}
     if decontam and HOLDOUT.exists():
         import pyarrow.parquet as pq

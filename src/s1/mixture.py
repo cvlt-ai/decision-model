@@ -42,6 +42,7 @@ from eval.datasets.severity import LEVELS as SEV_LEVELS  # noqa: E402
 PERMISSIVE = {"mit", "apache-2.0"}
 SA = {"cc-by-sa-3.0", "cc-by-sa-4.0"}
 SYNTHETIC = {"bespoke-synthetic"}  # Nimble c2d pairs (GPT-5.6, model-checked, no stated license)
+TSI = {"tsi-perm"}                 # TaskSource general-instruction (commercial-safe subset)
 
 
 def render(state, instructions, options: list[tuple[str, str]]) -> str:
@@ -199,6 +200,42 @@ def build_boolq(cap: int | None = None, order_aug: bool = False) -> list[dict]:
     return rows
 
 
+def build_tsi(cap: int | None = None, order_aug: bool = False) -> list[dict]:
+    """TaskSource general-instruction rows -> Jev choice rows (tsi-perm).
+
+    `tsi_train.jsonl` is the commercial-safe, option-parseable subset of TSI
+    (task / instruction / state / options / target). The state already carries
+    the option content (MCQ tasks embed `A: <desc>` lines; label tasks have
+    nothing to describe), so options are rendered as BARE keys and the state
+    does the describing - the same key-only pattern as banking77/go_emotions.
+    order_aug shuffles the option order (the keys travel, gold is a key).
+    """
+    src = RAW / "tsi_train.jsonl"
+    rows: list[dict] = []
+    # split on \n only (NOT splitlines): a few TSI strings embed U+2028 / U+0085,
+    # which splitlines() would break mid-JSON. Defensive skip on the rare bad line.
+    for i, line in enumerate(src.read_text().split("\n")):
+        if not line.strip():
+            continue
+        if cap and i >= cap:
+            break
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        state = r.get("state") or r.get("instruction")
+        instr = r.get("instruction", "")
+        opts = [(o, "") for o in r["options"]]  # bare keys; state carries the content
+        tgt = str(r["target"])
+        uid = f"tsi/{i}"
+        rows.append(_row(uid, "tsi", render(state, instr, opts), tgt, "tsi-perm"))
+        if order_aug:
+            rows.append(_row(uid + "/s", "tsi",
+                             render(state, instr, _shuffled_options(uid, opts)),
+                             tgt, "tsi-perm"))
+    return rows
+
+
 def _nimble_state_to_str(state) -> str:
     """Nimble `input.state` is either a list of {speaker, text} turns, a list
     of plain statement strings, a single string, or a dict. `render` wants a
@@ -286,26 +323,29 @@ BUILDERS = {
     "severity": build_severity,
     "boolq": build_boolq,
     "nimble": build_nimble_c2d,
+    "tsi": build_tsi,
 }
 DEFAULT_FAMILIES = ["banking77", "go_emotions", "injection", "severity"]  # permissive only
 
 
 def build_mixture(families: list[str] | None = None, cap: int | None = None,
                   include_sa: bool = False, order_aug: bool = False,
-                  include_c2d: bool = False) -> list[dict]:
+                  include_c2d: bool = False, include_tsi: bool = False) -> list[dict]:
     fams = families or (DEFAULT_FAMILIES
                         + (["boolq"] if include_sa else [])
-                        + (["nimble"] if include_c2d else []))
+                        + (["nimble"] if include_c2d else [])
+                        + (["tsi"] if include_tsi else []))
     rows: list[dict] = []
     for f in fams:
         for row in BUILDERS[f](cap, order_aug):
             lic_ok = (row["license"] in PERMISSIVE
                       or (row["license"] in SA and include_sa)
-                      or (row["license"] in SYNTHETIC and include_c2d))
+                      or (row["license"] in SYNTHETIC and include_c2d)
+                      or (row["license"] in TSI and include_tsi))
             if not lic_ok:
                 raise ValueError(
                     f"{row['uid']} is {row['license']}; not enabled "
-                    f"(permissive only, or use --include-sa / --include-c2d)")
+                    f"(permissive only, or use --include-sa / --include-c2d / --include-tsi)")
             rows.append(row)
     uids = [r["uid"] for r in rows]
     assert len(uids) == len(set(uids)), "duplicate uids in mixture"
@@ -335,9 +375,12 @@ if __name__ == "__main__":
                     help="emit a shuffled-option twin for each choice row (order invariance)")
     ap.add_argument("--include-c2d", action="store_true",
                     help="add Nimble c2d contrastive pairs (bespoke-synthetic)")
+    ap.add_argument("--include-tsi", action="store_true",
+                    help="add TaskSource general-instruction breadth (tsi-perm)")
     ap.add_argument("--families", default=None)
     a = ap.parse_args()
     fams = a.families.split(",") if a.families else None
     print(json.dumps(write_mixture(Path(a.out), families=fams, cap=a.cap,
                                    include_sa=a.include_sa, order_aug=a.order_aug,
-                                   include_c2d=a.include_c2d), indent=1))
+                                   include_c2d=a.include_c2d,
+                                   include_tsi=a.include_tsi), indent=1))
