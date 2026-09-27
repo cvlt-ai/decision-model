@@ -5,22 +5,20 @@ primitives, RLCD-trained on proper scoring rules). Plan:
 `~/.hermes/plans/2026-09-22_134149-jev-decision-model-research-and-local-training.md`;
 research/01..05 for findings.
 
-## 🔵 s1-v5 IN FLIGHT (launched 2026-09-26 ~10:54 EDT, ~16h ETA) — OVERNIGHT (user may be asleep; don't block)
-- **v5 = mixture_v5 (v3 + Nimble c2d contrastive line) at 4096**, bs=1/accum=32, ~4,158 steps.
-  The c2d line tests whether contrastive data moves the EVIDENCE-SENSITIVITY axis.
-- Training pid 2023929 (proc_972e05d2d220); supervisor pid 2024383 (proc_3f128f6ec746)
-  = `bash scripts/supervise_v5.sh 2023929 3`, log `results/overnight_v5.log`; relaunches
-  <=3x on pre-save death, then runs `scripts/eval_v5.sh` + commits + `MORNING:` line.
-- On-disk: `checkpoints/s1-v5_launch.log`, `checkpoints/s1-v5_log.jsonl`,
-  `checkpoints/s1-v5/` (adapter on save).
-- **On wake, check `results/overnight_v5.log` for the `MORNING:` lines.** Headline =
-  VitaminC flip probe v5 vs v3 baseline: v3 NEI acc **0.308** / lazy **0.175** / acc 0.783
-  (200 conflict families). If v5's NEI/lazy move, the c2d bet works; if flat, the line
-  needs more weight (upsample c2d) or TSI breadth is the bigger lever.
-- regression checks in the chain: frozen 9-family (v3 macro 0.727, negation 0.030) +
-  JevBench @4096 (v3 0.693).
+## ✅ s1-v5 RESULT (done overnight 2026-09-27 02:16) — see research/10-s1v5-c2d.md — NEW BEST
+- v5 = mixture_v5 (v3 + Nimble c2d contrastive line, 4,464 rows = 3.3%) at 4096,
+  bs=1/accum=32, 4,158 steps, loss→0.155, 0 relaunches.
+- **v5 is the new flagship.** Frozen: macro **0.750** (v3 0.727), negation **0.021**
+  (v3 0.030), Brier **0.125** (v3 0.146), mmlu_pro 0.30→0.350, injection 0.849→0.984.
+  Only post-cal ECE marginally worse (0.0326 vs 0.0265).
+- **JevBench hard tier 46→59** (+13 over v3, +18 over v4); all-public **0.7489**
+  (v3 0.693). Gap to AlexWortega 0.814 now 0.065; to Jev 0.866 is 0.117.
+- c2d moved the LONG-policy hard tier (its design target), not the short VitaminC
+  flip probe (NEI 0.308→0.264) — see research/10 for why that's coherent.
+- Supervisor chain ran clean + committed `741e5a0`. MORNING lines in
+  results/overnight_v5.log.
 
-## ✅ v4 RESULT (2026-09-26) — see research/08-s1v4-4096.md — v3 STILL best
+## ✅ v4 RESULT (2026-09-26) — see research/08-s1v4-4096.md — was best, now superseded by v5
 - s1-v4 = 4096-context retrain of mixture_v3 (bs=1/accum=32, 4021 steps, loss→0.267,
   SIGBUS guards held, no crash). **Diagnosed, not a win:**
   - JevBench: v4@1024=156 (== v3@1024, no regression); v4@4096=155 (hard 41) is BELOW
@@ -58,22 +56,20 @@ research/01..05 for findings.
 ## Checkpoints
 - `checkpoints/s1-v1` (75,822-row mix, 2ep, loss→0.33)
 - `checkpoints/s1-v2` (112,844-row order-aug mix, 1ep) — macro 0.710, negation regressed
-- `checkpoints/s1-v3` (131,698-row order-aug + boolq, 1ep) — **BEST: macro 0.727, negation 0.030**
+- `checkpoints/s1-v3` (131,698-row order-aug + boolq, 1ep) — macro 0.727, negation 0.030
 - `checkpoints/s1-v4` (same mix, 4096-context, 1ep) — context-capable, no regression, but data-bound
+- `checkpoints/s1-v5` (mixture_v5 = v3 + c2d, 4096, 1ep) — **BEST: macro 0.750, negation 0.021, JevBench hard 59**
 
 ## Not done (next, in order)
-1. **Train `mixture_v5` at 4096** (c2d contrastive line + VitaminC eval both built).
-   v4's 4096 context won't truncate (c2d rows max 929 tok; value = evidence
-   sensitivity, not context). After it lands: re-run `scripts/vitaminc_flip_probe.py`
-   on v5 vs the v3 baseline (NEI acc 0.308, lazy 0.175) for the before/after.
-2. **TSI-breadth mixture** (5.3M general rows) — still queued for the *knowledge*
-   gap (mmlu_pro 0.25→). Complements c2d (breadth vs contrast). Inventory:
-   `data/raw/tsi_task_counts.json`; license-filter to exclude anli/*.
+1. **TSI-breadth mixture** — the mmlu_pro axis (0.350 on v5, still ≪ Jev 0.83) is the
+   clearest remaining gap; TSI supplies the general-knowledge breadth. Now that c2d is
+   in (and moved the hard tier), TSI is the additive next line → `mixture_v6`.
+   Inventory: `data/raw/tsi_task_counts.json`; license-filter to exclude anli/*.
+2. Optionally **upsample c2d (2–4×)** to see if the short VitaminC flip-probe axis moves
+   too (v5's c2d at 3.3% moved the long hard tier but not the short probe).
 3. `scripts/decontaminate.py` MinHash fuzzy pass (exact-substring done; c2d = 0 drops).
 4. Full 35,594-row frozen run for the release number (currently 300/family samples).
-5. Optionally: order-consistency contrastive loss to close the zero-shot perm gap on
-   untrained families (mmlu/pubhealth flip ~0.48/0.31).
-6. Jev-compatible FastAPI server (`src/s1/schema.py` already speaks the wire format).
+5. Jev-compatible FastAPI server (`src/s1/schema.py` already speaks the wire format).
 
 ## Conventions
 - uv venv at `.venv`; run by `.venv/bin/python` (conda activate is broken in this shell).
