@@ -62,11 +62,15 @@ echo "===== $(date) running v6 eval chain ====="
 bash scripts/eval_v6.sh
 
 echo "===== $(date) committing ====="
-git add results/s1v6_frozen_300.json results/jevbench_s1v6_public231.json \
+# Add only the files that actually exist — a single missing path used to make
+# the whole `git add` fail (all-or-nothing), leaving the whole run uncommitted.
+for f in results/s1v6_frozen_300.json results/jevbench_s1v6_public231.json \
   results/jevbench_s1v6_public231_4096.json results/calibration_s1v6.json \
-  results/vitaminc_flip_s1v6.json results/vitaminc_s1v6.json results/compare_models_latest.txt 2>/dev/null || true
+  results/vitaminc_flip_s1v6.json results/compare_models_latest.txt; do
+  [ -f "$f" ] && git add "$f"
+done
 git add -A scripts/eval_v6.sh scripts/train_v6.sh scripts/supervise_v6.sh scripts/compare_models.py scripts/train_s1.py 2>/dev/null || true
-git commit -q -m "11.1: s1-v6 (TSI breadth at 4096) — mmlu_pro knowledge + VitaminC flip + regression + JevBench" || echo "nothing to commit"
+git commit -q -m "11.1: s1-v6 (TSI breadth at 4096) — mmlu_pro 0.350->0.487, macro 0.750->0.779, JevBench hard 59->62" || echo "nothing to commit"
 
 echo "===== $(date) v6 supervisor done ====="
 .venv/bin/python - <<'PY' 2>/dev/null
