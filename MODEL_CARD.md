@@ -94,6 +94,10 @@ Frozen holdout, 9 families, s1-v6 at 1024 context, T=1.0. This is the citable nu
 | go_emotions | 5,427 | 0.6005 |
 | mmlu_pro | 12,032 | 0.4383 |
 
+![s1-v6 per-family accuracy — strong on most families, one clear knowledge gap](docs/s1-v6-per-family.svg)
+
+*Strong on six families (≥0.65): injection, banking77, boolq, negation, pubhealth, baserate. The two gaps — go_emotions (0.601, the weakest large family) and **mmlu_pro (0.438, the knowledge gap)** — are the honest shortfalls.*
+
 ### Calibration
 
 The raw pooled ECE (0.105) is high only because mmlu_pro (12k of 35.5k rows, where the
@@ -110,6 +114,10 @@ pooled ECE to **0.0169** — the best calibration held across any version, well 
 | s1-v5 | 0.7489 | 59/111 |
 | AlexWortega/openjev v5 | 0.814 | 69/111 |
 | Jev 1.13 (hosted) | 0.866 | 81/111 |
+
+![JevBench public-231 — s1 versions vs the external baselines we track](docs/s1-v6-jevbench-comparison.svg)
+
+*s1-v6 (coral) is the release checkpoint; s1-v3→v6 is our local progression. openjev (0.814) and Jev 1.13 (0.866) are external, documented numbers, not local runs. Gap to openjev closed from 0.065 to **0.039**; Jev 1.13 remains 0.091 ahead.*
 
 ### Evidence-sensitivity (VitaminC flip probe, 200 conflict families)
 
@@ -141,6 +149,10 @@ the "don't over-claim" property that is the whole point of a coverage-aware deci
 Each line is a deliberate data decision, documented in `research/05`–`research/11`.
 The v6 jump is TSI breadth: it closed most of the knowledge gap *and* improved the
 differentiator axes (negation, coverage) simultaneously.
+
+![Frozen 9-family macro accuracy — from encoder baseline (Laya) to s1-v6](docs/s1-v6-frozen-macro-vs-laya.svg)
+
+*Laya (the purpose-built encoder we set out to beat) is 0.410; s1-v6 is 0.775 — **+0.365** over the encoder baseline, and the largest single jump is the v5→v6 TSI-breadth step.*
 
 ## 7. How to run it
 
