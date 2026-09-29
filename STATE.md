@@ -5,6 +5,27 @@ primitives, RLCD-trained on proper scoring rules). Plan:
 `~/.hermes/plans/2026-09-22_134149-jev-decision-model-research-and-local-training.md`;
 research/01..10 for findings.
 
+## ✅ s1-v6 FULL RELEASE RUN (done 2026-09-29 02:17) — 35,594 rows, the real numbers
+Full frozen holdout (not the 300/family sample), s1-v6 @1024 T=1.0, identical settings to
+the sample. Committed `8f0cb39`/`f9f229e`.
+| metric | FULL holdout (release) | 300/family sample |
+|---|---|---|
+| macro accuracy (unweighted, 9 fam) | **0.7747** | 0.7792 |
+| mmlu_pro (n=12,032) | **0.438** | 0.4867 |
+| negation violation | **0.0220** | 0.018 |
+| ECE raw @T=1 (pooled) | 0.1047 | 0.061 |
+| **ECE calibrated @best (T=1.5)** | **0.0169** | — |
+| Brier calibrated @best | 0.1441 | — |
+
+**Honest caveats (these are the numbers to quote, not the sample's):**
+- mmlu_pro is **0.438** on the full set (not the sample's 0.487) — the 300-row sample drew
+  an easier slice. mmlu_pro is 12k of 35.5k rows, so 0.438 is the real one. Still ≪ Jev 0.83.
+- Raw pooled ECE (0.1047) looks high only because mmlu_pro (12k rows, ECE 0.208) dominates
+  the pool. Per-family raw ECEs are all fine; calibration (offline) drops pooled ECE to
+  **0.0169** (best ever, under the 0.03 gate).
+- Per-family full: boolq 0.913, banking77 0.932, go_emotions 0.601, mmlu_pro 0.438,
+  pubhealth 0.787, injection 0.992, severity 0.657, baserate 0.741, negation 0.911.
+
 ## ✅ s1-v6 RESULT (done 2026-09-28 02:06) — see research/11-s1v6-tsi-breadth.md — **CURRENT BEST**
 - v6 = mixture_v6 (mixture_v5 + **TSI breadth**: 64,000 TaskSource rows, 129 tasks) at
   4096, bs=1/accum=32, 8,077 steps, ~28 h, **0 crashes / 0 relaunches**.
@@ -77,10 +98,11 @@ research/01..10 for findings.
 - `checkpoints/s1-v6` (mixture_v6 = v5 + TSI breadth 64k, 4096, 1ep) — **CURRENT BEST: macro 0.779, mmlu_pro 0.487, JevBench hard 62, all-public@4096 0.7749**
 
 ## Not done (next, in order)
-1. **Close the remaining knowledge gap** — v6 mmlu_pro 0.487, still ≪ Jev 0.83 (gap to
-   Jev now 0.091). Cheapest lever: re-extract TSI with a **higher per-task cap**
+1. **Close the remaining knowledge gap** — v6 mmlu_pro 0.438 (full), still ≪ Jev 0.83 (gap to
+   Jev ~0.09 on JevBench). Cheapest lever: re-extract TSI with a **higher per-task cap**
    (500/task capped knowledge-heavy tasks — CONDAQA, ARC, hop). Then retrain v7.
-2. **Full 35,594-row frozen run** for the release number (still on 300/family samples).
+2. ✅ ~~Full 35,594-row frozen run for the release number~~ — **DONE** (0.7747 macro, 0.438
+   mmlu_pro, ECE 0.0169 calibrated). See release-run section above.
 3. `scripts/decontaminate.py` MinHash fuzzy pass (exact-substring done; c2d/tsi = 0 drops).
 4. Jev-compatible FastAPI server (`src/s1/schema.py` already speaks the wire format).
 

@@ -57,6 +57,33 @@ property we wanted Jev to struggle with.
 v6@4096 is the best JevBench number we hold (was v5 0.7489 / hard 59). The gap to
 AlexWortega closed from **0.065 → 0.039**; to Jev 1.13 from 0.117 → **0.091**.
 
+## Full 35,594-row release run (2026-09-29)
+The 300/family numbers above are a *sample*; the release number is the **full frozen
+holdout** (35,594 rows, all 9 families), same settings (@1024, T=1.0). Committed
+`8f0cb39`/`f9f229e`. This is what a model card / paper quotes.
+
+| metric | FULL holdout | 300/family sample |
+|---|---|---|
+| macro accuracy (unweighted) | **0.7747** | 0.7792 |
+| mmlu_pro (n=12,032) | **0.438** | 0.4867 |
+| negation violation | **0.0220** | 0.018 |
+| ECE raw @T=1 (pooled) | 0.1047 | 0.061 |
+| **ECE @best (T=1.5)** | **0.0169** | — |
+| Brier @best | 0.1441 | — |
+
+Two honest corrections the full run made to the sample's story:
+- **mmlu_pro is 0.438, not 0.487.** The 300-row sample drew an easier slice; with 12,032
+  rows the real number is 0.438. Still the biggest single-family gap to Jev (0.83).
+- **Raw pooled ECE (0.1047) is high only because mmlu_pro (12k rows, ECE 0.208) dominates
+  the pool.** Per-family raw ECEs are all fine; offline temperature scaling (T=1.5) brings
+  pooled ECE to **0.0169** — the best calibration we've held, under the 0.03 gate.
+
+Per-family (full): boolq 0.913 · banking77 0.932 · go_emotions 0.601 · mmlu_pro 0.438 ·
+pubhealth 0.787 · injection 0.992 · severity 0.657 · baserate 0.741 · negation 0.911.
+
+The take is unchanged: TSI breadth is a broad win, and the remaining gap to Jev is
+knowledge (mmlu_pro 0.438 vs 0.83). Next lever = higher TSI per-task cap (see below).
+
 ## Reading
 - The knowledge axis moved exactly where we aimed: mmlu_pro +0.137 (0.350→0.487). Still
   below Jev's 0.83, but the single largest knowledge gain across any version.
