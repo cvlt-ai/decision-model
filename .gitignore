@@ -17,9 +17,9 @@ __pycache__/
 *.pyc
 third_party/
 
-# phase-12 (full-parameter line) — local until that line is released
+# unreleased experiment line — local only
 scripts/train_f1.py
 scripts/train_f1.sh
 scripts/merge_f1.py
-scripts/probe_mimo9b.py
+scripts/probe_base9b.py
 research/12-*.md
