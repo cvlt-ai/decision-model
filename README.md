@@ -1,6 +1,6 @@
-# system one (s1)
+# s1-jev-cvltist (project: system one, "s1")
 
-_A local, open, Jev-compatible "System One" decision model._
+_A local, open, Jev-compatible "System One" decision model. The release model is named **s1-jev-cvltist**._
 
 `system one` answers [TypeSafe Jev](https://jev.ai)-style questions — `choice`,
 `score`, `noul` — over a free-form **state**, and returns **calibrated
@@ -12,7 +12,7 @@ The design goal was not only to match Jev's accuracy but to be structurally stro
 Jev and its open clones are weak: **calibration**, **negation/invariance consistency**,
 and **coverage** (knowing when the evidence is insufficient).
 
-> **Status (2026-09-29):** `s1-v6` is the release checkpoint. Full 35,594-row frozen
+> **Status (2026-09-29):** `s1-jev-cvltist` is the release checkpoint. Full 35,594-row frozen
 > holdout: **macro 0.7747 · mmlu_pro 0.438 · negation 0.022 · ECE 0.0169 (T=1.5)**.
 > See [`MODEL_CARD.md`](MODEL_CARD.md) for the full card.
 
@@ -56,7 +56,7 @@ curl http://127.0.0.1:8000/v1/answer -H 'Content-Type: application/json' -d '{
   "urgent":{"type":"noul","noul":0.881}},"ms":498.5}
 ```
 
-`s1-v6` is served at the release-calibrated **T=1.5** (see model card §5).
+`s1-jev-cvltist` is served at the release-calibrated **T=1.5** (see model card §5).
 
 ## The wire format
 
@@ -108,7 +108,7 @@ JevBench does not.
 
 ## Key results
 
-| | s1-v6 (release, full holdout) |
+| | s1-jev-cvltist (release, full holdout) |
 |---|---:|
 | macro accuracy (9 families) | **0.7747** |
 | mmlu_pro | 0.438 |
@@ -130,7 +130,7 @@ JevBench, and the evidence-sensitivity probe.
 
 ## Where it stands vs Jev
 
-s1-v6 is within **0.09** of Jev 1.13 on JevBench (0.7749 vs 0.866) and ahead on the
+s1-jev-cvltist is within **0.09** of Jev 1.13 on JevBench (0.7749 vs 0.866) and ahead on the
 calibration and negation axes. The one axis it is clearly behind is **knowledge**
 (mmlu_pro 0.438 vs Jev's documented 0.83) — that is the next lever (a broader TSI
 extraction), not a spread across everything. Full version history: `research/05`–`11`.

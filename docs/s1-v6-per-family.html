@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>s1-v6 · Per-family accuracy</title>
+  <title>s1-jev-cvltist · Per-family accuracy</title>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,12 +22,12 @@
 </head>
 <body>
   <div class="frame">
-    <p class="eyebrow">Bar · Per-Family · s1-v6 · Full Holdout</p>
+    <p class="eyebrow">Bar · Per-Family · s1-jev-cvltist · Full Holdout</p>
     <h1>Per-family accuracy — strong on most, one clear knowledge gap</h1>
 
     <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="pf-title pf-desc">
-      <title id="pf-title">s1-v6 per-family accuracy</title>
-      <desc id="pf-desc">Bar chart of s1-v6 accuracy across the nine frozen families, sorted high to low. Strong on injection 0.992, banking77 0.932, boolq 0.913, negation 0.911, pubhealth 0.787, baserate 0.741, severity 0.657; go_emotions 0.601 is the weakest large family; mmlu_pro 0.438 is the knowledge gap and the single biggest shortfall.</desc>
+      <title id="pf-title">s1-jev-cvltist per-family accuracy</title>
+      <desc id="pf-desc">Bar chart of s1-jev-cvltist accuracy across the nine frozen families, sorted high to low. Strong on injection 0.992, banking77 0.932, boolq 0.913, negation 0.911, pubhealth 0.787, baserate 0.741, severity 0.657; go_emotions 0.601 is the weakest large family; mmlu_pro 0.438 is the knowledge gap and the single biggest shortfall.</desc>
       <defs>
         <pattern id="dots3" width="22" height="22" patternUnits="userSpaceOnUse">
           <circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/>
@@ -119,7 +119,7 @@
       <rect x="240" y="506" width="16" height="10" rx="2" fill="rgba(235,108,54,0.16)" stroke="#eb6c36" stroke-width="1.4"/>
       <text x="264" y="515" fill="#4f5d75" font-size="10.5" font-family="'Geist', sans-serif">Gap: go_emotions (weakest large fam) · mmlu_pro (the knowledge gap)</text>
 
-      <text x="40" y="536" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', monospace">Source: s1-v6 full frozen holdout (35,594 rows). Sorted high→low. baserate n=27, injection n=126 — wide confidence intervals.</text>
+      <text x="40" y="536" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', monospace">Source: s1-jev-cvltist full frozen holdout (35,594 rows). Sorted high→low. baserate n=27, injection n=126 — wide confidence intervals.</text>
     </svg>
   </div>
 </body>

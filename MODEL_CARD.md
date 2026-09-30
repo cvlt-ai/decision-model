@@ -1,6 +1,8 @@
-# s1-v6 — Model Card
+# s1-jev-cvltist — Model Card
 
 _A local, open, Jev-compatible "System One" decision model._
+**s1-jev-cvltist** is the name of this release model (project codename "system one", `s1`;
+the internal checkpoint id is `s1-v6`).
 
 **Base:** Qwen3.5-4B (Apache-2.0) · **Adapter:** LoRA r=16, α=32 · **Context:** 4096
 **Interface:** the TypeSafe Jev wire spec (choice / score / noul) · **Size:** 124 MB adapter
@@ -68,10 +70,10 @@ hellaswag) are quarantined out of the release mixture.
 
 ## 5. Evaluation — release numbers (full 35,594-row frozen holdout)
 
-Frozen holdout, 9 families, s1-v6 at 1024 context, T=1.0. This is the citable number
+Frozen holdout, 9 families, s1-jev-cvltist at 1024 context, T=1.0. This is the citable number
 (the 300/family sample used during iteration is superseded by the full run).
 
-| metric | **s1-v6 (release)** |
+| metric | **s1-jev-cvltist (release)** |
 |---|---:|
 | **macro accuracy** (unweighted, 9 families) | **0.7747** |
 | **mmlu_pro** (n=12,032) | **0.438** |
@@ -94,7 +96,7 @@ Frozen holdout, 9 families, s1-v6 at 1024 context, T=1.0. This is the citable nu
 | go_emotions | 5,427 | 0.6005 |
 | mmlu_pro | 12,032 | 0.4383 |
 
-![s1-v6 per-family accuracy — strong on most families, one clear knowledge gap](docs/s1-v6-per-family.svg)
+![s1-jev-cvltist per-family accuracy — strong on most families, one clear knowledge gap](docs/s1-v6-per-family.svg)
 
 *Strong on six families (≥0.65): injection, banking77, boolq, negation, pubhealth, baserate. The two gaps — go_emotions (0.601, the weakest large family) and **mmlu_pro (0.438, the knowledge gap)** — are the honest shortfalls.*
 
@@ -110,18 +112,18 @@ pooled ECE to **0.0169** — the best calibration held across any version, well 
 
 | model | all-public | hard tier |
 |---|---:|---:|
-| **s1-v6 @4096** | **0.7749** | **62/111** |
+| **s1-jev-cvltist @4096** | **0.7749** | **62/111** |
 | s1-v5 | 0.7489 | 59/111 |
 | AlexWortega/openjev v5 | 0.814 | 69/111 |
 | Jev 1.13 (hosted) | 0.866 | 81/111 |
 
 ![JevBench public-231 — s1 versions vs the external baselines we track](docs/s1-v6-jevbench-comparison.svg)
 
-*s1-v6 (coral) is the release checkpoint; s1-v3→v6 is our local progression. openjev (0.814) and Jev 1.13 (0.866) are external, documented numbers, not local runs. Gap to openjev closed from 0.065 to **0.039**; Jev 1.13 remains 0.091 ahead.*
+*s1-jev-cvltist (coral) is the release checkpoint; s1-v3→v6 is our local progression. openjev (0.814) and Jev 1.13 (0.866) are external, documented numbers, not local runs. Gap to openjev closed from 0.065 to **0.039**; Jev 1.13 remains 0.091 ahead.*
 
 ### Evidence-sensitivity (VitaminC flip probe, 200 conflict families)
 
-| | s1-v6 |
+| | s1-jev-cvltist |
 |---|---:|
 | overall | 0.799 |
 | SUPPORTS | 0.919 |
@@ -143,16 +145,16 @@ the "don't over-claim" property that is the whole point of a coverage-aware deci
 | s1-v3 | 0.727 | 0.030 | 0.146 | 0.300 |
 | s1-v4 | 0.723 | 0.022 | 0.157 | 0.253 |
 | s1-v5 | 0.750 | 0.021 | 0.125 | 0.350 |
-| **s1-v6** | **0.779** | **0.018** | **0.123** | **0.487** |
+| **s1-jev-cvltist** | **0.779** | **0.018** | **0.123** | **0.487** |
 
 \* v2's negation spike was a training-data bug (built without BoolQ); fixed in v3.
 Each line is a deliberate data decision, documented in `research/05`–`research/11`.
 The v6 jump is TSI breadth: it closed most of the knowledge gap *and* improved the
 differentiator axes (negation, coverage) simultaneously.
 
-![Frozen 9-family macro accuracy — from encoder baseline (Laya) to s1-v6](docs/s1-v6-frozen-macro-vs-laya.svg)
+![Frozen 9-family macro accuracy — from encoder baseline (Laya) to s1-jev-cvltist](docs/s1-v6-frozen-macro-vs-laya.svg)
 
-*Laya (the purpose-built encoder we set out to beat) is 0.410; s1-v6 is 0.775 — **+0.365** over the encoder baseline, and the largest single jump is the v5→v6 TSI-breadth step.*
+*Laya (the purpose-built encoder we set out to beat) is 0.410; s1-jev-cvltist is 0.775 — **+0.365** over the encoder baseline, and the largest single jump is the v5→v6 TSI-breadth step.*
 
 ## 7. How to run it
 

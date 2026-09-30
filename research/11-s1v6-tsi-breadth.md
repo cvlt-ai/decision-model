@@ -1,4 +1,4 @@
-# s1-v6 — TSI breadth line (2026-09-28)
+# s1-jev-cvltist — TSI breadth line (2026-09-28)
 
 ## TL;DR
 TSI breadth is a clear win. It closes most of the knowledge gap (the axis we were

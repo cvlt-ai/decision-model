@@ -5,8 +5,8 @@ primitives, RLCD-trained on proper scoring rules). Plan:
 `~/.hermes/plans/2026-09-22_134149-jev-decision-model-research-and-local-training.md`;
 research/01..10 for findings.
 
-## ✅ s1-v6 FULL RELEASE RUN (done 2026-09-29 02:17) — 35,594 rows, the real numbers
-Full frozen holdout (not the 300/family sample), s1-v6 @1024 T=1.0, identical settings to
+## ✅ s1-jev-cvltist FULL RELEASE RUN (done 2026-09-29 02:17) — 35,594 rows, the real numbers
+Full frozen holdout (not the 300/family sample), s1-jev-cvltist @1024 T=1.0, identical settings to
 the sample. Committed `8f0cb39`/`f9f229e`.
 | metric | FULL holdout (release) | 300/family sample |
 |---|---|---|
@@ -26,7 +26,7 @@ the sample. Committed `8f0cb39`/`f9f229e`.
 - Per-family full: boolq 0.913, banking77 0.932, go_emotions 0.601, mmlu_pro 0.438,
   pubhealth 0.787, injection 0.992, severity 0.657, baserate 0.741, negation 0.911.
 
-## ✅ s1-v6 RESULT (done 2026-09-28 02:06) — see research/11-s1v6-tsi-breadth.md — **CURRENT BEST**
+## ✅ s1-jev-cvltist RESULT (done 2026-09-28 02:06) — see research/11-s1v6-tsi-breadth.md — **CURRENT BEST**
 - v6 = mixture_v6 (mixture_v5 + **TSI breadth**: 64,000 TaskSource rows, 129 tasks) at
   4096, bs=1/accum=32, 8,077 steps, ~28 h, **0 crashes / 0 relaunches**.
 - **TSI breadth is a clear win — best on every axis.** Frozen: macro **0.750→0.779**,

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>s1-v6 serving stack</title>
+  <title>s1-jev-cvltist serving stack</title>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,13 +29,13 @@
 <body>
   <div class="frame">
     <p class="eyebrow">Architecture · Serving Stack · Diagram Design</p>
-    <h1>s1-v6: a Jev wire request becomes calibrated probabilities</h1>
+    <h1>s1-jev-cvltist: a Jev wire request becomes calibrated probabilities</h1>
 
     <div class="diagram-container">
       <svg viewBox="0 0 1240 560" xmlns="http://www.w3.org/2000/svg" role="img"
            aria-labelledby="s1serve-title s1serve-desc">
-        <title id="s1serve-title">s1-v6 serving stack</title>
-        <desc id="s1serve-desc">A Jev wire request flows through the FastAPI server, wire validation, and the logit readout, which drives the Qwen3.5-4B base model with the s1-v6 LoRA adapter to emit calibrated probabilities, returned as a Jev wire response.</desc>
+        <title id="s1serve-title">s1-jev-cvltist serving stack</title>
+        <desc id="s1serve-desc">A Jev wire request flows through the FastAPI server, wire validation, and the logit readout, which drives the Qwen3.5-4B base model with the s1-jev-cvltist LoRA adapter to emit calibrated probabilities, returned as a Jev wire response.</desc>
         <defs>
           <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
           <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
@@ -111,7 +111,7 @@
         <g>
           <rect x="536" y="360" width="448" height="88" rx="6" fill="#ffffff" stroke="#d5d9e2" stroke-width="1.2"/>
           <text x="548" y="382" font-family="'Geist Mono', monospace" font-size="9" letter-spacing="1" fill="#4f5d75">MODEL · GPU cuda:0</text>
-          <text x="548" y="408" font-family="'Geist', sans-serif" font-size="15" font-weight="600" fill="#2d3142">Qwen3.5-4B  +  LoRA s1-v6</text>
+          <text x="548" y="408" font-family="'Geist', sans-serif" font-size="15" font-weight="600" fill="#2d3142">Qwen3.5-4B  +  LoRA s1-jev-cvltist</text>
           <text x="548" y="428" font-family="'Geist Mono', monospace" font-size="11" fill="#4f5d75">base Apache-2.0 · adapter 124 MB · r16 α32 · bf16 · 4096</text>
         </g>
 
