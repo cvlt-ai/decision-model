@@ -1,5 +1,8 @@
 # s1-jev-cvltist — Model Card
 
+_Hub: [CVLTAI/s1-jev-cvltist](https://huggingface.co/CVLTAI/s1-jev-cvltist) (canonical) ·
+Pipeline (training / eval / serving): [github.com/cvlt-ai/decision-model](https://github.com/cvlt-ai/decision-model)_
+
 _A local, open, Jev-compatible "System One" decision model._
 **s1-jev-cvltist** is the name of this release model (project codename "system one", `s1`;
 the internal checkpoint id is `s1-v6`).

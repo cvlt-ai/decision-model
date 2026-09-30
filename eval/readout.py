@@ -58,12 +58,22 @@ class LogitReadout:
         self.tok = AutoTokenizer.from_pretrained(base, trust_remote_code=True)
         if self.tok.pad_token is None:
             self.tok.pad_token = self.tok.eos_token
-        model = AutoModelForCausalLM.from_pretrained(
-            base, dtype=dtype, trust_remote_code=True
-        )
-        from peft import PeftModel
+        # adapter checkpoints carry adapter_config.json; full-parameter checkpoints
+        # are plain HF dirs — load them directly (and from `ckpt`, not `base`).
+        ckpt_dir = Path(ckpt)
+        full_ckpt = ckpt_dir.is_dir() and not (ckpt_dir / "adapter_config.json").exists() \
+            and str(ckpt_dir) != str(base)
+        if full_ckpt:
+            model = AutoModelForCausalLM.from_pretrained(
+                ckpt, dtype=dtype, trust_remote_code=True
+            )
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                base, dtype=dtype, trust_remote_code=True
+            )
+            from peft import PeftModel
 
-        model = PeftModel.from_pretrained(model, ckpt)
+            model = PeftModel.from_pretrained(model, ckpt)
         model.eval()
         model.to(device)
         self.model = model
