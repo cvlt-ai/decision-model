@@ -16,3 +16,10 @@ __pycache__/
 .venv-od/
 *.pyc
 third_party/
+
+# phase-12 (full-parameter line) — local until that line is released
+scripts/train_f1.py
+scripts/train_f1.sh
+scripts/merge_f1.py
+scripts/probe_mimo9b.py
+research/12-*.md
