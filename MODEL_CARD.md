@@ -199,7 +199,7 @@ python scripts/serve_s1.py --ckpt checkpoints/s1-v6 --base Qwen/Qwen3.5-4B \
 
 ## 9. Reproducibility
 
-- **Release checkpoint:** `checkpoints/s1-v6` (commit `554debd`..`f9f229e`).
+- **Release checkpoint:** `checkpoints/s1-v6` (release line: eval `5d4e459`, calibration `d8267e2`).
 - **Release eval:** `results/s1v6_release_full.json` (35,594 rows) +
   `results/calibration_s1v6_release.json`.
 - **Build:** `scripts/train_v6.sh` (training), `scripts/eval_v6.sh` (eval chain),

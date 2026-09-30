@@ -7,7 +7,7 @@ research/01..10 for findings.
 
 ## ✅ s1-jev-cvltist FULL RELEASE RUN (done 2026-09-29 02:17) — 35,594 rows, the real numbers
 Full frozen holdout (not the 300/family sample), s1-jev-cvltist @1024 T=1.0, identical settings to
-the sample. Committed `8f0cb39`/`f9f229e`.
+the sample. Committed `5d4e459`/`d8267e2`.
 | metric | FULL holdout (release) | 300/family sample |
 |---|---|---|
 | macro accuracy (unweighted, 9 fam) | **0.7747** | 0.7792 |

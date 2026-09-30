@@ -60,7 +60,7 @@ AlexWortega closed from **0.065 → 0.039**; to Jev 1.13 from 0.117 → **0.091*
 ## Full 35,594-row release run (2026-09-29)
 The 300/family numbers above are a *sample*; the release number is the **full frozen
 holdout** (35,594 rows, all 9 families), same settings (@1024, T=1.0). Committed
-`8f0cb39`/`f9f229e`. This is what a model card / paper quotes.
+`5d4e459`/`d8267e2`. This is what a model card / paper quotes.
 
 | metric | FULL holdout | 300/family sample |
 |---|---|---|
